@@ -4,65 +4,76 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.ftc.Actions;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="RR Auto Action Testing")
-public class RRAutoActionTesting extends LinearOpMode {
+@Autonomous(name= "Elijah RoadRunner Testing")
+public class ElijahRoadRunnerTesting  extends LinearOpMode{
+
+
     @Override
     public void runOpMode() throws InterruptedException {
-        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
-        Servo intakeLeft = hardwareMap.servo.get("servo");
+        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+        Servo servo= hardwareMap.servo.get("servo");
 
         waitForStart();
-
+/// moves the robot
         Actions.runBlocking(
-            drive.actionBuilder(new Pose2d(0,0,0))
-                .lineToX(64)
-                .stopAndAdd(new PatientServoAction(intakeLeft, 0))
-                .lineToX(0)
-                .build());
+                drive.actionBuilder(new Pose2d(0,0,0))
+                        .lineToX(30)
+                        .stopAndAdd(new patientServoAction(servo, .5)))
+                        .build();
+
+
+
+
     }
 
+    ///makes the servo be able to be used
     public class ServoAction implements Action {
-        Servo servo;
+        Servo Servo;
         double position;
-
         public ServoAction(Servo s, double p) {
-            this.servo = s;
+            this.Servo = s;
             this.position = p;
         }
 
+
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            servo.setPosition(position);
+            Servo.setPosition(position);
             return false;
         }
     }
-
-    public class PatientServoAction implements Action {
-        Servo servo;
+    public class patientServoAction implements Action {
+        Servo Servo;
         double position;
         ElapsedTime timer;
 
-        public PatientServoAction(Servo s, double p) {
-            this.servo = s;
+        boolean hasInitialized;
+        public patientServoAction(Servo s, double p) {
+            this.Servo = s;
             this.position = p;
         }
 
+
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            if (timer == null){
+            if(!hasInitialized){
                 timer = new ElapsedTime();
-                servo.setPosition(position);
+                Servo.setPosition(position);
+
             }
 
-            // do we need to keep running?
+
+            // do we need to keep runing
             return timer.seconds() < 3;
+
         }
     }
 }
+
