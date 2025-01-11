@@ -25,8 +25,10 @@ public class ElijahRoadRunnerTesting  extends LinearOpMode{
         Actions.runBlocking(
                 drive.actionBuilder(new Pose2d(0,0,0))
                         .lineToX(30)
-                        .stopAndAdd(new patientServoAction(servo, .5)))
-                        .build();
+                        .stopAndAdd(new ServoAction(servo, 1))
+                        .lineToX(0)
+                        .stopAndAdd(new patientServoAction(servo, 0))
+                        .build());
 
 
 
@@ -66,11 +68,9 @@ public class ElijahRoadRunnerTesting  extends LinearOpMode{
             if(!hasInitialized){
                 timer = new ElapsedTime();
                 Servo.setPosition(position);
-
             }
 
-
-            // do we need to keep runing
+            // do we need to keep running
             return timer.seconds() < 3;
 
         }

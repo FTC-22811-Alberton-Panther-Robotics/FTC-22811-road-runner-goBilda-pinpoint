@@ -20,7 +20,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
  *
  * The idea is that the Roadrunner Autonomous opMode and the teleOpModes will be both able to refer
  * to this HardwareClasses file so that when hardware changes are made in the future it will need to
- * only be changed in one file. I'm not sure yet how tthe actions will be used in teleOp yet though.
+ * only be changed in one file. I'm not sure yet how the actions will be used in teleOp yet though.
  */
 
 public class HardwareClasses {
