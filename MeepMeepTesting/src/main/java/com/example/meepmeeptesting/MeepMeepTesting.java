@@ -46,18 +46,23 @@ public class MeepMeepTesting {
                 .build();
 
         bot2.runAction(bot2.getDrive().actionBuilder(new Pose2d(-11.8, 61.7, Math.toRadians(-90)))
-                .setTangent(Math.toRadians(-70))
-                .lineToY(38)
-                .waitSeconds(0)
-//                .splineToLinearHeading(new Pose2d(,,Math.toRadians()), Math.toRadians())
-//                .lineToY()
-
                 .setTangent(Math.toRadians(0))
-                .lineToXLinearHeading(-35, Math.toRadians(-140))
-                .lineToX(-65)
-
+                .lineToX(-49)
+                .splineToLinearHeading(new Pose2d(-36,50,Math.toRadians(-90)), Math.toRadians(3))
+    //            .splineToLinearHeading(new Pose2d(-39,40,Math.toRadians(-180)), Math.toRadians(-80))
+                .lineToX(29)
+  //              .lineToY(30)
+//                .splineToLinearHeading(new Pose2d(-50,12,Math.toRadians(-15)), Math.toRadians(-25))
+//                .setTangent(Math.toRadians(80))
+//                .lineToY(53)
+//                .lineToY(30)
+//                .splineToLinearHeading(new Pose2d(-61,12,Math.toRadians(0)), Math.toRadians(-25))
+//                .setTangent(Math.toRadians(90))
+//                .lineToY(53)
+//                .splineToLinearHeading(new Pose2d(-40,40,Math.toRadians(0)), Math.toRadians(-90))
+//                .lineToY(15)
+//                .splineToLinearHeading(new Pose2d(-25, 12, Math.toRadians(0)), Math.toRadians(0))
                 .build());
-
 
 
                 meepMeep.setBackground(MeepMeep.Background.FIELD_INTO_THE_DEEP_OFFICIAL)
