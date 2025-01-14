@@ -8,6 +8,7 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -18,16 +19,19 @@ public class ElijahRoadRunnerTesting  extends LinearOpMode{
     @Override
     public void runOpMode() throws InterruptedException {
         MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+        DcMotor motor = hardwareMap.dcMotor.get("arm");
+        motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         Servo servo= hardwareMap.servo.get("servo");
-
+        servo.setPosition(0);
         waitForStart();
 /// moves the robot
         Actions.runBlocking(
                 drive.actionBuilder(new Pose2d(0,0,0))
-                        .lineToX(30)
+
+                        .lineToX(5)
                         .stopAndAdd(new ServoAction(servo, 1))
-                        .lineToX(0)
-                        .stopAndAdd(new patientServoAction(servo, 0))
+                        .stopAndAdd(new MotorAction(motor, 1))
+                        .lineToX(-2)
                         .build());
 
 
@@ -44,7 +48,6 @@ public class ElijahRoadRunnerTesting  extends LinearOpMode{
             this.position = p;
         }
 
-
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             Servo.setPosition(position);
@@ -57,6 +60,7 @@ public class ElijahRoadRunnerTesting  extends LinearOpMode{
         ElapsedTime timer;
 
         boolean hasInitialized;
+
         public patientServoAction(Servo s, double p) {
             this.Servo = s;
             this.position = p;
@@ -65,7 +69,7 @@ public class ElijahRoadRunnerTesting  extends LinearOpMode{
 
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            if(!hasInitialized){
+            if (!hasInitialized) {
                 timer = new ElapsedTime();
                 Servo.setPosition(position);
             }
@@ -75,5 +79,44 @@ public class ElijahRoadRunnerTesting  extends LinearOpMode{
 
         }
     }
-}
+
+
+
+
+    public class MotorAction implements Action {
+        DcMotor motor;
+
+        double power;
+
+        ElapsedTime timer;
+
+        boolean hasInitialized;
+
+        public MotorAction(DcMotor m, double p) {
+            this.motor = m;
+            this.power = p;
+        }
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            if (!hasInitialized) {
+                timer = new ElapsedTime();
+                motor.setPower(power);
+            }
+
+            // do we need to keep running
+            return timer.seconds() < 3;
+
+        }
+
+
+
+
+
+
+
+
+
+            }
+        }
+
 
