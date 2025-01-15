@@ -10,6 +10,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 @TeleOp(name="Wheel Test Code")
 public class WheelTest extends LinearOpMode {
     public DcMotor leftFrontDrive;
+    public DcMotor leftRearDrive;
+    public DcMotor rightFrontDrive;
+    public DcMotor rightRearDrive;
 
     @Override
     public void runOpMode() {
@@ -19,13 +22,16 @@ public class WheelTest extends LinearOpMode {
          * TODO: declare the other 3 motors similar to this one
          */
         leftFrontDrive = hardwareMap.dcMotor.get("left_front_drive");
+        leftRearDrive = hardwareMap.dcMotor.get("left_rear_drive");
+        rightFrontDrive = hardwareMap.dcMotor.get("right_front_drive");
+        rightRearDrive = hardwareMap.dcMotor.get("right_rear_drive");
 
         /*
          * we need to reverse the left side of the drivetrain because of the way the motors face.
          * TODO: set the leftRearDrive to REVERSE as well
          */
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
-
+        leftRearDrive.setDirection(DcMotor.Direction.REVERSE);
         // Everything above this happens when the initialize button is pressed. Everything below happens when the start button is pressed.
         waitForStart();
 
@@ -42,6 +48,19 @@ public class WheelTest extends LinearOpMode {
             if (gamepad1.x){
                 leftFrontDrive.setPower(.3);
             } else leftFrontDrive.setPower(0);
+
+            if(gamepad1.y){
+                leftRearDrive.setPower(.3);
+            } else leftRearDrive.setPower(0);
+
+            if(gamepad1.a){
+                rightFrontDrive.setPower(.3);
+            } else rightFrontDrive.setPower(0);
+
+            if(gamepad1.b){
+                rightRearDrive.setPower(.3);
+            } else rightRearDrive.setPower(0);
+
             // TODO: do the same for the other motors (leftRearDrive, rightFrontDrive, and rightRearDrive) with the y, a, and b buttons
 
         }

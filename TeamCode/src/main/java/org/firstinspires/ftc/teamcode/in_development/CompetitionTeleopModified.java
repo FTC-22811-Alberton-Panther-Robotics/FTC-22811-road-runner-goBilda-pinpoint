@@ -68,9 +68,7 @@ public class CompetitionTeleopModified extends LinearOpMode {
     public DcMotor  leftBackDrive    = null;
     public DcMotor  rightBackDrive   = null;
     public DcMotor  armMotor         = null; //the arm motor
-    public DcMotor slideMotor = null;
     public CRServo  intake           = null; //the active intake servo
-    public Servo    wrist            = null; //the wrist servo
     private int sequenceState = 0;
     private ElapsedTime sequenceTimer = new ElapsedTime();
 
@@ -160,7 +158,6 @@ public class CompetitionTeleopModified extends LinearOpMode {
         rightFrontDrive = hardwareMap.dcMotor.get("right_front_drive");
         rightBackDrive  = hardwareMap.dcMotor.get("right_rear_drive");
         armMotor        = hardwareMap.get(DcMotor.class, "arm"); //the arm motor
-        slideMotor = hardwareMap.dcMotor.get("slide");
 
         /* we need to reverse the left side of the drivetrain so it doesn't turn when we ask all the
         drive motors to go forward. */
@@ -175,7 +172,6 @@ public class CompetitionTeleopModified extends LinearOpMode {
         leftBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         /*This sets the maximum current that the control hub will apply to the arm before throwing a flag */
         ((DcMotorEx) armMotor).setCurrentAlert(5,CurrentUnit.AMPS);
@@ -187,18 +183,13 @@ public class CompetitionTeleopModified extends LinearOpMode {
         armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        slideMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        slideMotor.setTargetPosition(0);
-        slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
 
         /* Define and initialize servos.*/
         intake = hardwareMap.get(CRServo.class, "intake");
-        wrist  = hardwareMap.get(Servo.class, "wrist");
 
         /* Make sure that the intake is off, and the wrist is folded in. */
         intake.setPower(INTAKE_OFF);
-        wrist.setPosition(WRIST_FOLDED_OUT);
 
         /* Send telemetry message to signify robot waiting */
         telemetry.addLine("Robot Ready.");
@@ -372,10 +363,7 @@ public class CompetitionTeleopModified extends LinearOpMode {
                 slidePosition = 0;
             }
 
-            slideMotor.setTargetPosition((int) (slidePosition));
 
-            ((DcMotorEx) slideMotor).setVelocity(2100);
-            slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
             /* Check to see if our arm is over the current limit, and report via telemetry. */
             if (((DcMotorEx) armMotor).isOverCurrent()){
@@ -403,10 +391,6 @@ public class CompetitionTeleopModified extends LinearOpMode {
             telemetry.addData("arm Encoder: ", armMotor.getCurrentPosition());
             telemetry.addData("arm angle: ", armMotor.getCurrentPosition()/ARM_TICKS_PER_DEGREE);
             telemetry.addData("slide variable", slidePosition);
-            telemetry.addData("slide Target Position",slideMotor.getTargetPosition());
-            telemetry.addData("slide current position", slideMotor.getCurrentPosition());
-            telemetry.addData("slide current mm", slideMotor.getCurrentPosition()/SLIDE_TICKS_PER_MM);
-            telemetry.addData("slideMotor Current:",((DcMotorEx) slideMotor).getCurrent(CurrentUnit.AMPS));
             telemetry.update();
         }
     }
@@ -457,7 +441,6 @@ public class CompetitionTeleopModified extends LinearOpMode {
             case FOLDED:
                 slidePosition = SLIDE_COLLAPSED;
                 intake.setPower(INTAKE_OFF);
-                wrist.setPosition(WRIST_FOLDED_IN);
                 state = ArmState.IDLE;
                 break;
             case CLEAR_BARRIER:
