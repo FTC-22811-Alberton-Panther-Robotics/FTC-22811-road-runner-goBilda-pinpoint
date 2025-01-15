@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.in_development;
 /* Copyright (c) 2022 FIRST. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -28,10 +28,17 @@ package org.firstinspires.ftc.teamcode;
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 
 /*
@@ -76,6 +83,8 @@ import com.qualcomm.robotcore.util.Range;
 //@Disabled
 public class CompetitionTeleop extends LinearOpMode {
 
+    private static final double
+            INTAKE_OFF =0 ;
     // Create a org.firstinspires.ftc.teamcode.in_development.RobotHardware object to be used to access robot hardware.
     // Prefix any hardware functions with "robot." to access this class.
     RobotHardware robot = new RobotHardware(this, telemetry);
@@ -92,6 +101,33 @@ public class CompetitionTeleop extends LinearOpMode {
 
         // initialize all the hardware, using the hardware class. See how clean and simple this is?
         robot.init();
+        DcMotor leftFrontDrive = hardwareMap.dcMotor.get("left_front_drive");
+        DcMotor leftRearDrive = hardwareMap.dcMotor.get("left_rear_drive");
+        DcMotor rightFrontDrive = hardwareMap.dcMotor.get("right_front_drive");
+        DcMotor rightRearDrive = hardwareMap.dcMotor.get("right_rear_drive");
+        DcMotor armMotor = hardwareMap.dcMotor.get("arm");
+
+        CRServo intakeRight = hardwareMap.get(CRServo.class, "intakeRight");
+        CRServo intakeLeft = hardwareMap.get(CRServo.class, "intakeLeft");
+
+        leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
+        leftRearDrive.setDirection(DcMotor.Direction.REVERSE);
+
+        /* Setting zeroPowerBehavior to BRAKE enables a "brake mode". This causes the motor to slow down
+        much faster when it is coasting. This creates a much more controllable drivetrain. As the robot
+        stops much quicker. */
+        leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftRearDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightRearDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        /*This sets the maximum current that the control hub will apply to the arm before throwing a flag */
+        ((DcMotorEx) armMotor).setCurrentAlert(5, CurrentUnit.AMPS);
+
+
+
+
+
         ElapsedTime runtime = new ElapsedTime();
 
         // Send telemetry message to signify robot waiting;
@@ -220,6 +256,41 @@ public class CompetitionTeleop extends LinearOpMode {
                 }
             } else backButtonPressed = false;
 
+
+        /* Before starting the armMotor. We'll make sure the TargetPosition is set to 0.
+        Then we'll set the RunMode to RUN_TO_POSITION. And we'll ask it to stop and reset encoder.
+        If you do not have the encoder plugged into this motor, it will not run in this code. */
+            armMotor.setTargetPosition(0);
+            armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+
+            /* Make sure that the intakeLeft is off, and the wrist is folded in. */
+            intakeLeft.setPower(INTAKE_OFF);
+            intakeRight.setPower(INTAKE_OFF);
+
+            /* Send telemetry message to signify robot waiting */
+
+            // Retrieve the IMU from the hardware map
+            IMU imu = hardwareMap.get(IMU.class, "imu");
+            // Adjust the orientation parameters to match your robot
+            IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
+                    RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
+                    RevHubOrientationOnRobot.UsbFacingDirection.UP));
+            // Without this, the REV Hub's orientation is assumed to be logo up / USB forward
+            imu.initialize(parameters);
+            /* Wait for the game driver to press play */
+            waitForStart();
+
+            /* Run until the driver presses stop */
+            while (opModeIsActive())
+
+            {  double y = -gamepad1.left_stick_y;
+                double x = gamepad1.left_stick_x;
+                double rx = gamepad1.right_stick_x;
+
+
+
             /// This code needs updated. We probably don't want the wrist matching the arm angle all the time since it needs to reach back to the lift,
             /// however it might be nice to have it go to preset angles when the arm goes to presets
             // Move wrist so that it moves when arm rotates to keep gripper parallel to floor
@@ -227,7 +298,8 @@ public class CompetitionTeleop extends LinearOpMode {
 //            robot.setWristAngle(-robot.getArmAngle());
 
             // Send telemetry messages to explain controls and show robot status
-            telemetry.addLine("Drive/Strafe: Left Stick");
+                telemetry.addLine("Robot Ready.");
+                telemetry.addLine("Drive/Strafe: Left Stick");
             telemetry.addLine("Turn: Right Stick");
             telemetry.addLine("Arm Score: Y, Intake: X, Up/Down: B & A Buttons");
             telemetry.addLine("Lift Extend/Retract: Dpad Up & Down Buttons");
@@ -239,7 +311,7 @@ public class CompetitionTeleop extends LinearOpMode {
 //            telemetry.addData("Wrist Position", "%.2f", robot.getWristPosition());
 //            telemetry.addData("Wrist Angle", "%.2f", robot.getWristAngle());
             telemetry.addData("Arm Position Index", robot.armPositionIndex);
-            telemetry.addData("Arm Angle Preset Target", robot.ARM_PRESET_ANGLES[robot.armPositionIndex]);
+         //   telemetry.addData("Arm Angle Preset Target", robot.ARM_PRESET_ANGLES[robot.armPositionIndex]);
             telemetry.addData("Arm Angle Relative to Zero", "%.2f",robot.getArmAngleRelativeToZero());
             telemetry.addData("Arm Target Angle", "%.2f",robot.getArmTargetAngle());
             telemetry.addData("Arm Position", "%.2f",robot.getArmEncoderCounts());
@@ -263,4 +335,5 @@ public class CompetitionTeleop extends LinearOpMode {
         }
         robot.opModeActive = false;
     }
+}
 }
