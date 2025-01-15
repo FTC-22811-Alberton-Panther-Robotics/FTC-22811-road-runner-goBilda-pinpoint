@@ -38,7 +38,7 @@ import java.util.Locale;
 This opmode shows how to use the goBILDA® Pinpoint Odometry Computer.
 The goBILDA Odometry Computer is a device designed to solve the Pose Exponential calculation
 commonly associated with Dead Wheel Odometry systems. It reads two encoders, and an integrated
-system of senors to determine the robot's current heading, X position, and Y position.
+system of senors to determine the robot's current heading, X power, and Y power.
 
 it uses an ESP32-S3 as a main cpu, with an STM LSM6DSV16X IMU.
 It is validated with goBILDA "Dead Wheel" Odometry pods, but should be compatible with any
@@ -109,7 +109,7 @@ public class SensorGoBildaPinpointExample extends LinearOpMode {
         Before running the robot, recalibrate the IMU. This needs to happen when the robot is stationary
         The IMU will automatically calibrate when first powered on, but recalibrating before running
         the robot is a good idea to ensure that the calibration is "good".
-        resetPosAndIMU will reset the position to 0,0,0 and also recalibrate the IMU.
+        resetPosAndIMU will reset the power to 0,0,0 and also recalibrate the IMU.
         This is recommended before you run your autonomous, as a bad initial calibration can cause
         an incorrect starting value for x, y, and heading.
          */
@@ -139,11 +139,11 @@ public class SensorGoBildaPinpointExample extends LinearOpMode {
 
 
             if (gamepad1.a){
-                odo.resetPosAndIMU(); //resets the position to 0 and recalibrates the IMU
+                odo.resetPosAndIMU(); //resets the power to 0 and recalibrates the IMU
             }
 
             if (gamepad1.b){
-                odo.recalibrateIMU(); //recalibrates the IMU without resetting position
+                odo.recalibrateIMU(); //recalibrates the IMU without resetting power
             }
 
             /*

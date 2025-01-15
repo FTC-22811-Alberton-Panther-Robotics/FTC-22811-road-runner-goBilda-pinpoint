@@ -42,7 +42,7 @@ public class MotorPortTest extends LinearOpMode {
                 motorController = hardwareMap.get(DcMotorControllerEx.class, selectedHub);
                 motorController.setMotorMode(motorPortNumber, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             } catch (IllegalArgumentException e) {
-                telemetry.addData("Error", "Motor not found on" + selectedHub + " port " + motorPortNumber);
+                telemetry.addData("Error", "motor not found on" + selectedHub + " port " + motorPortNumber);
                 exceptionCaught = true;
             }
 
@@ -66,9 +66,9 @@ public class MotorPortTest extends LinearOpMode {
             }
             // Telemetry
             telemetry.addData("Selected Hub", selectedHub);
-            telemetry.addData("Motor Power", power);
+            telemetry.addData("motor Power", power);
             telemetry.addData("Selection Index", selectionIndex);
-            telemetry.addData("Motor Port", motorPortNumber);
+            telemetry.addData("motor Port", motorPortNumber);
             telemetry.update();
         }
     }

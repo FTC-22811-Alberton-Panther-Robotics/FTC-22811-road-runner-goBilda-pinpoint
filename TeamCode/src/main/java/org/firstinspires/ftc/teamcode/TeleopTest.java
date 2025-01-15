@@ -51,8 +51,8 @@ public class TeleopTest extends OpMode {
     @Override
     public void loop() {
         robot.opModeActive = true;
-        robot.updateArmState(); // update arm state machine to track arm position. By calling it here it gets updated everytime the opMode loops but otherwise works in the background while motors move.
-        robot.updateLiftState(); // update lift state machine to track lift position.
+        robot.updateArmState(); // update arm state machine to track arm power. By calling it here it gets updated everytime the opMode loops but otherwise works in the background while motors move.
+        robot.updateLiftState(); // update lift state machine to track lift power.
 
         // Run wheels in strafer mode (note: The joystick goes negative when pushed forward, so negate it)
         // In this mode the Left stick moves the robot fwd and back and left and right, the Right stick turns left and right.
