@@ -1,25 +1,65 @@
-package org.firstinspires.ftc.teamcode.Competition;
+/* Copyright (c) 2017 FIRST. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted (subject to the limitations in the disclaimer below) provided that
+ * the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this list
+ * of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of FIRST nor the names of its contributors may be used to endorse or
+ * promote products derived from this software without specific prior written permission.
+ *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
+ * LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+package org.firstinspires.ftc.teamcode.in_development;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Roadrunner.PinpointDrive;
 
-@Autonomous(name = "RR Pinpoint Auto", group = "RoadRunner")
 
+/*
+ * This file contains an minimal example of a Linear "OpMode". An OpMode is a 'program' that runs in either
+ * the autonomous or the teleop period of an FTC match. The names of OpModes appear on the menu
+ * of the FTC Driver Station. When a selection is made from the menu, the corresponding OpMode
+ * class is instantiated on the Robot Controller and executed.
+ *
+ * This particular OpMode just executes a basic Tank Drive Teleop for a two wheeled robot
+ * It includes all the skeletal structure that all linear OpModes contain.
+ *
+ * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
+ * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
+ */
 
+@TeleOp(name="Basic: RRPinpointAuto2", group="Linear OpMode")
 //@Disabled
-public class RRPinpointAuto extends OpMode {
+public class RRPinpointAuto2 extends LinearOpMode {
 
-
-    // Create a org.firstinspires.ftc.teamcode.RobotHardware object to be used to access robot hardware.
-    // Prefix any hardware functions with "robot." to access this class.
-
-
-    int legNumber = 0;
+    // Declare OpMode members.
+    private ElapsedTime runtime = new ElapsedTime();
     boolean isRedAlliance = true;
     boolean isLeftStart = true;
     double startingPause = 0;
@@ -27,23 +67,26 @@ public class RRPinpointAuto extends OpMode {
     private Pose2d initialPose;
 
     @Override
-    public void init() {
+    public void runOpMode() {
         // instantiate the PinpointDrive at a particular pose.
         initialPose = new Pose2d(11.8, 61.7, Math.toRadians(-90));
         drive = new PinpointDrive(hardwareMap, initialPose);
-    }
-
-    @Override
-    public void start(){
-
         // Select Alliance, starting point, and route options
         configAutonomous();
+
+        telemetry.addData("Status", "Initialized");
+        telemetry.update();
+
+
+        // Wait for the game to start (driver presses START)
+        waitForStart();
+        runtime.reset();
 
         Actions.runBlocking(drive.actionBuilder(initialPose)
                 .setTangent(Math.toRadians(-5))
                 .lineToX(50)
                 .splineToLinearHeading(new Pose2d(36,30,Math.toRadians(-90)), Math.toRadians(-95))
-               .splineToLinearHeading(new Pose2d(43,12,Math.toRadians(-15)), Math.toRadians(-25))
+                .splineToLinearHeading(new Pose2d(43,12,Math.toRadians(-15)), Math.toRadians(-25))
                 .setTangent(Math.toRadians(75))
                 .lineToY(56)
                 .lineToY(30)
@@ -59,12 +102,6 @@ public class RRPinpointAuto extends OpMode {
 //                .splineToLinearHeading(new Pose2d(25, 12, Math.toRadians(0)), Math.toRadians(0))
                 .build());
     }
-
-    @Override
-    public void loop(){
-
-    }
-
     /**
      * This method used a technique called latching with all the button presses where it only toggles
      * when you let go of the button. This keeps from accidentally registering multiple button presses
@@ -75,8 +112,6 @@ public class RRPinpointAuto extends OpMode {
         final int SELECTION_COUNT = 4; // Number of options in selection list.
         boolean dpadDownPressed = false, dpadUpPressed = false, dpadRightOrLeftPressed = false, dpadRightPressed = false, dpadLeftPressed = false;
         boolean configComplete = false;
-
-
 
         // This loops until the x
         while(!isStarted() && !configComplete){
@@ -137,8 +172,6 @@ public class RRPinpointAuto extends OpMode {
             // Press x to end Autonomous Configuration
             if(gamepad1.x) configComplete = true;
             telemetry.update();
-
-
         }
 
         // Send telemetry message to signify robot waiting;
