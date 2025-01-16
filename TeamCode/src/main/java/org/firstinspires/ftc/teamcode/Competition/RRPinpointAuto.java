@@ -35,10 +35,6 @@ public class RRPinpointAuto extends OpMode {
 
     @Override
     public void start(){
-
-        // Select Alliance, starting point, and route options
-        configAutonomous();
-
         Actions.runBlocking(drive.actionBuilder(initialPose)
                 .setTangent(Math.toRadians(-5))
                 .lineToX(50)
@@ -63,86 +59,5 @@ public class RRPinpointAuto extends OpMode {
     @Override
     public void loop(){
 
-    }
-
-    /**
-     * This method used a technique called latching with all the button presses where it only toggles
-     * when you let go of the button. This keeps from accidentally registering multiple button presses
-     * when you hold the button for too long.
-     */
-    private void configAutonomous(){
-        int selection = 0;
-        final int SELECTION_COUNT = 4; // Number of options in selection list.
-        boolean dpadDownPressed = false, dpadUpPressed = false, dpadRightOrLeftPressed = false, dpadRightPressed = false, dpadLeftPressed = false;
-        boolean configComplete = false;
-
-
-
-        // This loops until the x
-        while(!isStarted() && !configComplete){
-            // This is the first example of latching. This while loop can cycle hundreds of times a
-            // second. This waits until the dpad_down button is not pressed before it increments
-            // the selection
-            if(gamepad1.dpad_down) dpadDownPressed = true;
-            else if(dpadDownPressed && !gamepad1.dpad_down){
-                dpadDownPressed = false;
-                selection += 1;
-                selection = selection % SELECTION_COUNT; // cycles around to beginning of list after the end
-                // % means the remainder after dividing
-            }
-
-            if(gamepad1.dpad_up) dpadUpPressed = true;
-            else if(dpadUpPressed && !gamepad1.dpad_up){
-                dpadUpPressed = false;
-                if (selection >0) selection -= 1;
-            }
-
-            // The following blocks display an arrow next to the option currently being selected and wait for
-            // you to toggle that option by pressing either dpad_left or dpad_right
-            telemetry.addLine("Press Dpad Up/Down to choose an option, and Left/Right to change options");
-            if(selection == 1) {
-                telemetry.addData("-->Alliance: ", isRedAlliance ?"Red": "Blue"); //This syntax is an inline if statement that can be used in simple cases
-                if(gamepad1.dpad_right || gamepad1.dpad_left) dpadRightOrLeftPressed = true;
-                else if(dpadRightOrLeftPressed && !(gamepad1.dpad_right || gamepad1.dpad_left)){
-                    dpadRightOrLeftPressed = false;
-                    isRedAlliance = !isRedAlliance;
-                }
-            } else telemetry.addData("Alliance: ", isRedAlliance ?"Red": "Blue");
-
-            if(selection == 2) {
-                telemetry.addData("-->Starting Position: ", isLeftStart ?"Left": "Right");
-                if(gamepad1.dpad_right || gamepad1.dpad_left) dpadRightOrLeftPressed = true;
-                else if(dpadRightOrLeftPressed && !(gamepad1.dpad_right || gamepad1.dpad_left)){
-                    dpadRightOrLeftPressed = false;
-                    isLeftStart = !isLeftStart;
-                }
-            } else telemetry.addData("Starting Position: ", isLeftStart ?"Left": "Right");
-
-            if(selection == 3) {
-                telemetry.addData("-->Starting Pause: ", startingPause +" seconds");
-                if(gamepad1.dpad_right) dpadRightPressed = true;
-                else if(dpadRightPressed && !gamepad1.dpad_right){
-                    dpadRightPressed = false;
-                    startingPause += 0.5;
-                }
-                if(gamepad1.dpad_left) dpadLeftPressed = true;
-                else if(dpadLeftPressed && !gamepad1.dpad_left){
-                    dpadLeftPressed = false;
-                    startingPause -= 0.5;
-                }
-            } else telemetry.addData("Starting Pause: ", startingPause +" seconds");
-
-            telemetry.addLine("\nPress [x] to complete");
-
-            // Press x to end Autonomous Configuration
-            if(gamepad1.x) configComplete = true;
-            telemetry.update();
-
-
-        }
-
-        // Send telemetry message to signify robot waiting;
-        telemetry.addData(">", "Autonomous Configuration Complete.  Press Play to start OpMode.");
-        telemetry.update();
     }
 }
