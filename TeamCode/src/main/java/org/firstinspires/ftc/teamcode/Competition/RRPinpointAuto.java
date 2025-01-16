@@ -5,6 +5,7 @@ import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+
 import org.firstinspires.ftc.teamcode.Roadrunner.PinpointDrive;
 
 @Autonomous(name = "RR Pinpoint Auto", group = "RoadRunner")
@@ -12,6 +13,11 @@ import org.firstinspires.ftc.teamcode.Roadrunner.PinpointDrive;
 
 //@Disabled
 public class RRPinpointAuto extends OpMode {
+
+
+    // Create a org.firstinspires.ftc.teamcode.RobotHardware object to be used to access robot hardware.
+    // Prefix any hardware functions with "robot." to access this class.
+
 
     int legNumber = 0;
     boolean isRedAlliance = true;
@@ -29,6 +35,10 @@ public class RRPinpointAuto extends OpMode {
 
     @Override
     public void start(){
+
+        // Select Alliance, starting point, and route options
+        configAutonomous();
+
         Actions.runBlocking(drive.actionBuilder(initialPose)
                 .setTangent(Math.toRadians(-5))
                 .lineToX(50)
@@ -50,6 +60,11 @@ public class RRPinpointAuto extends OpMode {
                 .build());
     }
 
+    @Override
+    public void loop(){
+
+    }
+
     /**
      * This method used a technique called latching with all the button presses where it only toggles
      * when you let go of the button. This keeps from accidentally registering multiple button presses
@@ -62,7 +77,7 @@ public class RRPinpointAuto extends OpMode {
         boolean configComplete = false;
 
         // This loops until the x
-        while(!start() && !configComplete){
+        while(!isStarted() && !configComplete){
             // This is the first example of latching. This while loop can cycle hundreds of times a
             // second. This waits until the dpad_down button is not pressed before it increments
             // the selection
@@ -125,10 +140,5 @@ public class RRPinpointAuto extends OpMode {
         // Send telemetry message to signify robot waiting;
         telemetry.addData(">", "Autonomous Configuration Complete.  Press Play to start OpMode.");
         telemetry.update();
-    }
-
-    @Override
-    public void loop() {
-
     }
 }
