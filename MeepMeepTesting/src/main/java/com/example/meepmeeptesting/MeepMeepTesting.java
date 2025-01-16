@@ -59,9 +59,7 @@ public class MeepMeepTesting {
                 .lineToY(12)
                 .splineToLinearHeading(new Pose2d(-61,10,Math.toRadians(0)), Math.toRadians(90))
                 .lineToY(55)
-                .lineToY(12)
-                .lineToY(15)
-             .splineToLinearHeading(new Pose2d(-25, 12, Math.toRadians(0)), Math.toRadians(0))
+                .lineToY(58)
                 .build());
 
 
