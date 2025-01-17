@@ -27,16 +27,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode.in_development;
+package org.firstinspires.ftc.teamcode.Competition;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Roadrunner.PinpointDrive;
 
@@ -54,9 +51,9 @@ import org.firstinspires.ftc.teamcode.Roadrunner.PinpointDrive;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
-@TeleOp(name="Basic: RRPinpointAuto2", group="Linear OpMode")
+@TeleOp(name="Basic: ConfigurableAutonomousRR", group="Competition")
 //@Disabled
-public class RRPinpointAuto2 extends LinearOpMode {
+public class ConfigurableAutonomousRR extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();

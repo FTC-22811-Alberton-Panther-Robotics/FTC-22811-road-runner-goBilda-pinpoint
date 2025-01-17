@@ -55,10 +55,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
  * https://gm0.org/en/latest/docs/software/tutorials/mecanum-drive.html#field-centric
  */
 
-@TeleOp(name="Competition-Teleop", group="In_Development")
+@TeleOp(name="Competition-Teleop", group="Competition")
 //@Disabled
 public class CompetitionTeleopModified extends LinearOpMode {
-
 
     /* Declare OpMode members. */
     public DcMotor  leftFrontDrive   = null; //the left drivetrain motor
@@ -66,8 +65,8 @@ public class CompetitionTeleopModified extends LinearOpMode {
     public DcMotor  leftBackDrive    = null;
     public DcMotor  rightBackDrive   = null;
     public DcMotor  armMotor         = null; //the arm motor
-    public CRServo  intake           = null; //the active intake servo
-    private int sequenceState = 0;
+    public CRServo intakeLeft = null; //the left active intake servo
+    public CRServo intakeRight = null; //the right active intake servo
     private ElapsedTime sequenceTimer = new ElapsedTime();
 
     /* This constant is the number of encoder ticks for each degree of rotation of the arm.
@@ -81,10 +80,9 @@ public class CompetitionTeleopModified extends LinearOpMode {
     counts per rotation of the arm. We divide that by 360 to get the counts per degree. */
 
     final double ARM_TICKS_PER_DEGREE =
-            28 // number of encoder ticks per rotation of the bare motor
-                    * 250047.0 / 4913.0 // This is the exact gear ratio of the 50.9:1 Yellow Jacket gearbox
-                    * 100.0 / 20.0 // This is the external gear reduction, a 20T pinion gear that drives a 100T hub-mount gear
-                    * 1/360.0; // we want ticks per degree, not per rotation
+            28 *     // number of encoder ticks per rotation of the bare motor
+              125    // this is the total gear reduction from the REV gear cartridges
+             /360.0; // we want ticks per degree, not per rotation
 
     /* These constants hold the position that the arm is commanded to run to.
     These are relative to where the arm was located when you start the OpMode. So make sure the
@@ -93,7 +91,7 @@ public class CompetitionTeleopModified extends LinearOpMode {
     In these variables you'll see a number in degrees, multiplied by the ticks per degree of the arm.
     This results in the number of encoder ticks the arm needs to move in order to achieve the ideal
     set position of the arm. For example, the ARM_SCORE_SAMPLE_IN_HIGH is set to
-    160 * ARM_TICKS_PER_DEGREE. This asks the arm to move 160Â° from the starting position.
+    160 * ARM_TICKS_PER_DEGREE. This asks the arm to move 160° from the starting position.
     If you'd like it to move further, increase that number. If you'd like it to not move
     as far from the starting position, decrease it. */
 
@@ -106,34 +104,20 @@ public class CompetitionTeleopModified extends LinearOpMode {
     final double ARM_WINCH_ROBOT           = 10  * ARM_TICKS_PER_DEGREE;
 
     /// Mr. Morris: These are the arm states that the gamepad1 dpad buttons will toggle through
-    private enum ArmState{HIGH_BASKET, COLLECT, FOLDED, CLEAR_BARRIER, IDLE}
+    private enum ArmState{SCORE_SPECIMEN, COLLECT, FOLDED, CLEAR_BARRIER, IDLE}
     private ArmState currentArmState = ArmState.FOLDED;
 
-    /* Variables to store the speed the intake servo should be set at to intake, and deposit game elements. */
+    /* Variables to store the speed the intakeLeft servo should be set at to intakeLeft, and deposit game elements. */
     final double INTAKE_COLLECT    = -1.0;
     final double INTAKE_OFF        =  0.0;
     final double INTAKE_DEPOSIT    =  0.5;
 
-    /* Variables to store the positions that the wrist should be set to when folding in, or folding out. */
-    final double WRIST_FOLDED_IN   = 0.1667;
-    final double WRIST_FOLDED_OUT  = 0.5;
-
     /* Variables that are used to set the arm to a specific position */
     double armPosition = (int)ARM_COLLAPSED_INTO_ROBOT;
-
-    final double SLIDE_TICKS_PER_MM = (111132.0 / 289.0) / 120.0;
-
-    final double SLIDE_COLLAPSED = 0 * SLIDE_TICKS_PER_MM;
-    final double SLIDE_SCORING_IN_LOW_BASKET = 0 * SLIDE_TICKS_PER_MM;
-    final double SLIDE_SCORING_IN_HIGH_BASKET = 450 * SLIDE_TICKS_PER_MM;
-
-    double slidePosition = SLIDE_COLLAPSED;
 
     double cycleTime = 0;
     double loopTime = 0;
     double oldTime = 0;
-
-    double armSlideComp = 0;
 
     @Override
     public void runOpMode() {
@@ -141,9 +125,8 @@ public class CompetitionTeleopModified extends LinearOpMode {
         ///             play and then is used to set other time tracking variables.
         ElapsedTime runtime = new ElapsedTime();
 
-       /*
-       These variables are private to the OpMode, and are used to control the drivetrain.
-        */
+
+        //These variables are private to the OpMode, and are used to control the drivetrain.
         double left;
         double right;
         double forward;
@@ -162,7 +145,7 @@ public class CompetitionTeleopModified extends LinearOpMode {
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
         leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
 
-        /* Setting zeroPowerBehavior to BRAKE enables a "brake4 mode". This causes the motor to slow down
+        /* Setting zeroPowerBehavior to BRAKE enables a "brake mode". This causes the motor to slow down
         much faster when it is coasting. This creates a much more controllable drivetrain. As the robot
         stops much quicker. */
         leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -181,13 +164,13 @@ public class CompetitionTeleopModified extends LinearOpMode {
         armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
+        /* Define and Initialize Servos */
+        intakeLeft = hardwareMap.get(CRServo.class, "intakeLeft");
+        intakeRight = hardwareMap.get(CRServo.class, "intakeRight");
 
-
-        /* Define and initialize servos.*/
-        intake = hardwareMap.get(CRServo.class, "intake");
-
-        /* Make sure that the intake is off, and the wrist is folded in. */
-        intake.setPower(INTAKE_OFF);
+        /* Make sure that the intakeLeft is off, and the wrist is folded in. */
+        intakeLeft.setPower(INTAKE_OFF);
+        intakeRight.setPower(INTAKE_OFF);
 
         /* Send telemetry message to signify robot waiting */
         telemetry.addLine("Robot Ready.");
@@ -195,9 +178,9 @@ public class CompetitionTeleopModified extends LinearOpMode {
         // Retrieve the IMU from the hardware map
         IMU imu = hardwareMap.get(IMU.class, "imu");
         // Adjust the orientation parameters to match your robot
-        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                RevHubOrientationOnRobot.UsbFacingDirection.LEFT));
+        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot( //TODO: Make sure this orientation is correct!
+                RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
+                RevHubOrientationOnRobot.UsbFacingDirection.UP));
         // Without this, the REV Hub's orientation is assumed to be logo up / USB forward
         imu.initialize(parameters);
         /* Wait for the game driver to press play */
@@ -209,6 +192,8 @@ public class CompetitionTeleopModified extends LinearOpMode {
             // the arm, slide, and wrist together in coordinated movements.
             updateArmState(currentArmState);
 
+            // These call the method squareInputWithSign which has the effect of dampening small movements
+            // to makes it easier to make small precise moves with the joysticks
             double y = -squareInputWithSign(gamepad1.left_stick_y); // left stick is negative when up so flip that with negative sign
             double x = squareInputWithSign(gamepad1.left_stick_x);
             double rx = squareInputWithSign(gamepad1.right_stick_x);
@@ -221,7 +206,6 @@ public class CompetitionTeleopModified extends LinearOpMode {
             }
 
             double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-
 
             // Rotate the movement direction counter to the bot's rotation
             double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
@@ -246,34 +230,39 @@ public class CompetitionTeleopModified extends LinearOpMode {
             /* TECH TIP: If Else statement:
             We're using an else if statement on "gamepad1.x" and "gamepad1.b" just in case
             multiple buttons are pressed at the same time. If the driver presses both "a" and "x"
-            at the same time. "a" will win over and the intake will turn on. If we just had
-            three if statements, then it will set the intake servo's power to multiple speeds in
+            at the same time. "a" will win over and the intakeLeft will turn on. If we just had
+            three if statements, then it will set the intakeLeft servo's power to multiple speeds in
             one cycle. Which can cause strange behavior. */
 
             if (gamepad1.left_bumper) {
-                intake.setPower(INTAKE_COLLECT);
+                intakeLeft.setPower(INTAKE_COLLECT);
+                intakeRight.setPower(INTAKE_COLLECT);
             }
             else if (gamepad1.right_bumper) {
-                intake.setPower(INTAKE_DEPOSIT);
+                intakeLeft.setPower(INTAKE_DEPOSIT);
+                intakeRight.setPower(INTAKE_DEPOSIT);
             }
             else if (gamepad2.left_bumper) {
-                intake.setPower(INTAKE_COLLECT);
+                intakeLeft.setPower(INTAKE_COLLECT);
+                intakeRight.setPower(INTAKE_COLLECT);
             }
             else if (gamepad2.right_bumper) {
-                intake.setPower(INTAKE_DEPOSIT);
+                intakeLeft.setPower(INTAKE_DEPOSIT);
+                intakeRight.setPower(INTAKE_DEPOSIT);
             }
             else {
-                intake.setPower(INTAKE_OFF);
+                intakeLeft.setPower(INTAKE_OFF);
+                intakeRight.setPower(INTAKE_OFF);
             }
 
-            armPosition = armPosition - gamepad2.left_stick_y * 25; //Arm speed
+            armPosition = armPosition - gamepad2.left_stick_y * 25; //Arm speed TODO: Make sure this multiplier works well for the arm!
 
             /* Here we implement a set of if else statements to set our arm to different scoring positions.
             We check to see if a specific button is pressed, and then move the arm (and sometimes
-            intake and wrist) to match. For example, if we click the right bumper we want the robot
+            intakeLeft and wrist) to match. For example, if we click the right bumper we want the robot
             to start collecting. So it moves the armPosition to the ARM_COLLECT position,
-            it folds out the wrist to make sure it is in the correct orientation to intake, and it
-            turns the intake on to the COLLECT mode.*/
+            it folds out the wrist to make sure it is in the correct orientation to intakeLeft, and it
+            turns the intakeLeft on to the COLLECT mode.*/
 
             if (gamepad1.dpad_left) {
                 /* This raises the arm up just enough to clear the barrier to collect samples in the submersible */
@@ -281,14 +270,14 @@ public class CompetitionTeleopModified extends LinearOpMode {
             }
 
             else if (gamepad1.dpad_right){
-                /* This lowers the arm to the ground and turns on the intake wheels */
+                /* This lowers the arm to the ground and turns on the intakeLeft wheels */
                 sequenceTimer.reset();
                 currentArmState = ArmState.COLLECT;
             }
 
             else if (gamepad1.dpad_up){
-                /* This raises and extends the arm up to score a sample in the high basket */
-                currentArmState = ArmState.HIGH_BASKET;
+                /* This raises and extends the arm up to score a specimen on the high rung */
+                currentArmState = ArmState.SCORE_SPECIMEN;
             }
 
             else if (gamepad1.dpad_down){
@@ -296,81 +285,19 @@ public class CompetitionTeleopModified extends LinearOpMode {
                 updateArmState(ArmState.FOLDED);
             }
 
-           /* This is probably my favorite piece of code on this robot. It's a clever little software
-           solution to a problem the robot has.
-           This robot has an extending lift on the end of an arm shoulder. That arm shoulder should
-           run to a specific angle, and stop there to collect from the field. And the angle that
-           the shoulder should stop at changes based on how long the arm is (how far the lift is extended)
-           so here, we add a compensation factor based on how far the lift is extended.
-           That comp factor is multiplied by the number of mm the lift is extended, which
-           results in the number of degrees we need to fudge our arm up by to keep the end of the arm
-           the same distance from the field.
-           Now we don't need this to happen when the arm is up and in scoring position. So if the arm
-           is above 45Â°, then we just set armSlideComp to 0. It's only if it's below 45Â° that we set it
-           to a value. */
-            if (armPosition < 45 * ARM_TICKS_PER_DEGREE){
-                armSlideComp = (0.25568 * slidePosition);
-            }
-            else{
-                armSlideComp = 0;
-            }
-
             /* Here we set the target position of our arm to match the variable that was selected
             by the driver. We add the armPosition Variable to our armPositionFudgeFactor, before adding
             our armSlideComp, which adjusts the arm height for different lift extensions.
             We also set the target velocity (speed) the motor runs at, and use setMode to run it.*/
-            armMotor.setTargetPosition((int) (armPosition + armSlideComp));
+            armMotor.setTargetPosition((int) (armPosition));
 
             ((DcMotorEx) armMotor).setVelocity(2100);
             armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-            /* Here we set the lift position based on the driver input.
-            This is a.... weird, way to set the position of a "closed loop" device. The lift is run
-            with encoders. So it knows exactly where it is, and there's a limit to how far in and
-            out it should run. Normally with mechanisms like this we just tell it to run to an exact
-            position. This works a lot like our arm. Where we click a button and it goes to a position, then stops.
-            But the drivers wanted more "open loop" controls. So we want the lift to keep extending for
-            as long as we hold the bumpers, and when we let go of the bumper, stop where it is at.
-            This allows the driver to manually set the position, and not have to have a bunch of different
-            options for how far out it goes. But it also lets us enforce the end stops for the slide
-            in software. So that the motor can't run past it's endstops and stall.
-            We have our SlidePosition variable, which we increment or decrement for every cycle (every
-            time our main robot code runs) that we're holding the button. Now since every cycle can take
-            a different amount of time to complete, and we want the lift to move at a constant speed,
-            we measure how long each cycle takes with the cycleTime variable. Then multiply the
-            speed we want the lift to run at (in mm/sec) by the cycleTime variable. There's no way
-            that our lift can move 2800mm in one cycle, but since each cycle is only a fraction of a second,
-            we are only incrementing it a small amount each cycle. */
-
-            /* TODO: Mr. Morris: The first time I read their code I didn't get the elegance of their solution.
-             *                   We might want to try something similar to their original rather than what we
-             *                   have now. But it will need testing. This would be how I would rewrite it for
-             *                   analog (stick) input:
-             *  slidePosition += gamepad2.right_stick_x * 2800 * cycleTime;
-             */
-
-            slidePosition += gamepad2.right_stick_x * 25; //Slide speed
-
-            /* here we check to see if the lift is trying to go higher than the maximum extension.
-            if it is, we set the variable to the max. */
-            if (slidePosition > SLIDE_SCORING_IN_HIGH_BASKET){
-                slidePosition = SLIDE_SCORING_IN_HIGH_BASKET;
-            }
-            //same as above, we see if the lift is trying to go below 0, and if it is, we set it to 0.
-            if (slidePosition < 0){
-                slidePosition = 0;
-            }
-
-
 
             /* Check to see if our arm is over the current limit, and report via telemetry. */
             if (((DcMotorEx) armMotor).isOverCurrent()){
                 telemetry.addLine("MOTOR EXCEEDED CURRENT LIMIT!");
             }
-
-            /* at the very end of the stream, we added a linear actuator kit to try to hang the robot on.
-            it didn't end up working... But here's the code we run it with. It just sets the motor
-            power to match the inverse of the left stick y. */
 
             /* This is how we check our loop time. We create three variables:
                 loopTime is the current time when we hit this part of the code.
@@ -388,8 +315,13 @@ public class CompetitionTeleopModified extends LinearOpMode {
             telemetry.addData("arm Target Position: ", armMotor.getTargetPosition());
             telemetry.addData("arm Encoder: ", armMotor.getCurrentPosition());
             telemetry.addData("arm angle: ", armMotor.getCurrentPosition()/ARM_TICKS_PER_DEGREE);
-            telemetry.addData("slide variable", slidePosition);
             telemetry.update();
+
+            // We may want to try the following gemini-suggested improvement to the telemetry (fewer telemetry calls improves performance)
+//            telemetry.addData("Arm Info", "Target: %d, Encoder: %d, Angle: %.2f",
+//                    armMotor.getTargetPosition(), armMotor.getCurrentPosition(),
+//                    armMotor.getCurrentPosition() / ARM_TICKS_PER_DEGREE);
+//            telemetry.update();
         }
     }
 
@@ -409,7 +341,7 @@ public class CompetitionTeleopModified extends LinearOpMode {
     /**
      * Mr. Morris:
      * This method is a finite state machine implementation to track the possible positions of the arm, slide, and wrist. The
-     * main reason this was implemented is because Mahlon asked for a time delay when moving from the HIGH_BASKET down. I
+     * main reason this was implemented is because Mahlon asked for a time delay when moving from the SCORE_SPECIMEN down. I
      * interpreted this as hitting the button to go to the COLLECT, however it could be adjusted to behave how the drivers want.
      * Currently it has a timer in the COLLECT case so that the arm delays half a second while the slide retracts. There are
      * certainly simpler solutions to this problem, but this one is more robust and gives us the framework to make all sorts of
@@ -423,27 +355,22 @@ public class CompetitionTeleopModified extends LinearOpMode {
      */
     private void updateArmState(ArmState state){
         switch (state){
-            case HIGH_BASKET:
+            case SCORE_SPECIMEN:
                 armPosition = ARM_SCORE_SAMPLE_IN_HIGH;
-                slidePosition = SLIDE_SCORING_IN_HIGH_BASKET;
-                state = ArmState.IDLE;
+                currentArmState = ArmState.IDLE;
                 break;
             case COLLECT:
-                slidePosition = SLIDE_COLLAPSED;
-                if (sequenceTimer.seconds() > 0.5)
-                {
                     armPosition = ARM_COLLECT;
-                    state = ArmState.IDLE;
-                }
+                    currentArmState = ArmState.IDLE;
                 break;
             case FOLDED:
-                slidePosition = SLIDE_COLLAPSED;
-                intake.setPower(INTAKE_OFF);
-                state = ArmState.IDLE;
+                intakeLeft.setPower(INTAKE_OFF);
+                intakeRight.setPower(INTAKE_OFF);
+                currentArmState = ArmState.IDLE;
                 break;
             case CLEAR_BARRIER:
                 armPosition = ARM_CLEAR_BARRIER;
-                state = ArmState.IDLE;
+                currentArmState = ArmState.IDLE;
                 break;
             case IDLE:
                 break;
