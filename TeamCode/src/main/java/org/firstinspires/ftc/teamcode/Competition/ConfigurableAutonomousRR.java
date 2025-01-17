@@ -57,17 +57,15 @@ public class ConfigurableAutonomousRR extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
-    boolean isRedAlliance = true;
     boolean isLeftStart = true;
-    double startingPause = 0;
+    double  startingPause = 0;
     private PinpointDrive drive;
     private Pose2d initialPose;
 
     @Override
     public void runOpMode() {
         // instantiate the PinpointDrive at a particular pose.
-        initialPose = new Pose2d(11.8, 61.7, Math.toRadians(-90));
-        drive = new PinpointDrive(hardwareMap, initialPose);
+
         // Select Alliance, starting point, and route options
         configAutonomous();
 
@@ -78,6 +76,48 @@ public class ConfigurableAutonomousRR extends LinearOpMode {
         // Wait for the game to start (driver presses START)
         waitForStart();
         runtime.reset();
+
+        if(isLeftStart){
+            // instantiate the PinpointDrive at the center of the second-from-left tile
+            initialPose = new Pose2d(37, 61.7, Math.toRadians(-90));
+            drive = new PinpointDrive(hardwareMap, initialPose);
+            Actions.runBlocking(drive.actionBuilder(initialPose)
+                    .setTangent(Math.toRadians(0))
+                    .lineToX(49)
+                    .splineToLinearHeading(new Pose2d(37,35,Math.toRadians(-90)), Math.toRadians(-90))
+                    .lineToY(17)
+                    .splineToLinearHeading(new Pose2d(40,12,Math.toRadians(160)), Math.toRadians(75))
+                    .setTangent(Math.toRadians(75))
+                    .lineToY(58)
+                    .lineToY(12)
+                    .splineToLinearHeading(new Pose2d(53,12,Math.toRadians(180)), Math.toRadians(85))
+                    .setTangent(Math.toRadians(85))
+                    .lineToY(55)
+                    .lineToY(12)
+                    .splineToLinearHeading(new Pose2d(61,10,Math.toRadians(180)), Math.toRadians(90))
+                    .lineToY(46)
+                    .splineToLinearHeading(new Pose2d(25, 12, Math.toRadians(180)), Math.toRadians(160))
+                    .build());
+        } else {
+            // instantiate the PinpointDrive at the center of the third-from-right tile
+            initialPose = new Pose2d(-11.8, 61.7, Math.toRadians(-90));
+            drive = new PinpointDrive(hardwareMap, initialPose);
+            Actions.runBlocking(drive.actionBuilder(initialPose)
+                    .setTangent(Math.toRadians(0))
+                    .lineToX(-49)
+                    .splineToLinearHeading(new Pose2d(-35,32,Math.toRadians(-90)), Math.toRadians(-90))
+                    .lineToY(20)
+                    .splineToLinearHeading(new Pose2d(-45,12,Math.toRadians(0)), Math.toRadians(90))
+                    .lineToY(53)
+                    .lineToY(12)
+                    .splineToLinearHeading(new Pose2d(-53,10,Math.toRadians(0)), Math.toRadians(90))
+                    .lineToY(53)
+                    .lineToY(12)
+                    .splineToLinearHeading(new Pose2d(-61,10,Math.toRadians(0)), Math.toRadians(90))
+                    .lineToY(50)
+                    .splineToLinearHeading(new Pose2d(-25, 12, Math.toRadians(0)), Math.toRadians(20))
+                    .build());
+        }
 
         Actions.runBlocking(drive.actionBuilder(initialPose)
                 .setTangent(Math.toRadians(-5))
@@ -133,15 +173,6 @@ public class ConfigurableAutonomousRR extends LinearOpMode {
             // you to toggle that option by pressing either dpad_left or dpad_right
             telemetry.addLine("Press Dpad Up/Down to choose an option, and Left/Right to change options");
             if(selection == 1) {
-                telemetry.addData("-->Alliance: ", isRedAlliance ?"Red": "Blue"); //This syntax is an inline if statement that can be used in simple cases
-                if(gamepad1.dpad_right || gamepad1.dpad_left) dpadRightOrLeftPressed = true;
-                else if(dpadRightOrLeftPressed && !(gamepad1.dpad_right || gamepad1.dpad_left)){
-                    dpadRightOrLeftPressed = false;
-                    isRedAlliance = !isRedAlliance;
-                }
-            } else telemetry.addData("Alliance: ", isRedAlliance ?"Red": "Blue");
-
-            if(selection == 2) {
                 telemetry.addData("-->Starting Position: ", isLeftStart ?"Left": "Right");
                 if(gamepad1.dpad_right || gamepad1.dpad_left) dpadRightOrLeftPressed = true;
                 else if(dpadRightOrLeftPressed && !(gamepad1.dpad_right || gamepad1.dpad_left)){
@@ -150,7 +181,7 @@ public class ConfigurableAutonomousRR extends LinearOpMode {
                 }
             } else telemetry.addData("Starting Position: ", isLeftStart ?"Left": "Right");
 
-            if(selection == 3) {
+            if(selection == 2) {
                 telemetry.addData("-->Starting Pause: ", startingPause +" seconds");
                 if(gamepad1.dpad_right) dpadRightPressed = true;
                 else if(dpadRightPressed && !gamepad1.dpad_right){
