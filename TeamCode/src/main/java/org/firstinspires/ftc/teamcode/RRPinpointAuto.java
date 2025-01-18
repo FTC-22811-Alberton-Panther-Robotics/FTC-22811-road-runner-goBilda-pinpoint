@@ -1,17 +1,15 @@
-package org.firstinspires.ftc.teamcode.Competition;
+package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-
-
-import org.firstinspires.ftc.teamcode.Roadrunner.PinpointDrive;
 
 @Autonomous(name = "RR Pinpoint Auto", group = "RoadRunner")
 
 
-//@Disabled
+@Disabled
 public class RRPinpointAuto extends OpMode {
 
 

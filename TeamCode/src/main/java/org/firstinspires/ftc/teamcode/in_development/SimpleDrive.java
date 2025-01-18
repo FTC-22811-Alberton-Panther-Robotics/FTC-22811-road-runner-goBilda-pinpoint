@@ -58,10 +58,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 public class SimpleDrive extends LinearOpMode {
 
     /* Declare OpMode members. */
-    public DcMotor  leftFrontDrive   = null; //the left drivetrain motor
-    public DcMotor  rightFrontDrive  = null; //the right drivetrain motor
-    public DcMotor  leftRearDrive = null;
-    public DcMotor  rightRearDrive = null;
+    public DcMotor  LeftFront   = null; //the left drivetrain motor
+    public DcMotor  RightFront  = null; //the right drivetrain motor
+    public DcMotor  LeftRear = null;
+    public DcMotor  RightRear = null;
 
 
 
@@ -79,10 +79,10 @@ public class SimpleDrive extends LinearOpMode {
 
 
         /* Define and Initialize Motors */
-        leftFrontDrive  = hardwareMap.dcMotor.get("left_front_drive");
-        leftRearDrive = hardwareMap.dcMotor.get("left_rear_drive");
-        rightFrontDrive = hardwareMap.dcMotor.get("right_front_drive");
-        rightRearDrive = hardwareMap.dcMotor.get("right_rear_drive");
+        LeftFront  = hardwareMap.dcMotor.get("left_front_drive");
+        LeftRear = hardwareMap.dcMotor.get("left_rear_drive");
+        RightFront = hardwareMap.dcMotor.get("right_front_drive");
+        RightRear = hardwareMap.dcMotor.get("right_rear_drive");
         //hangMotor       = hardwareMap.dcMotor.get("hangMotor");
 
 
@@ -91,16 +91,16 @@ public class SimpleDrive extends LinearOpMode {
        drive motors to go forward.
         */
 
-        leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
-        leftRearDrive.setDirection(DcMotor.Direction.REVERSE);
+        LeftFront.setDirection(DcMotor.Direction.REVERSE);
+        LeftRear.setDirection(DcMotor.Direction.REVERSE);
 
         /* Setting zeroPowerBehavior to BRAKE enables a "brake mode". This causes the motor to slow down
         much faster when it is coasting. This creates a much more controllable drivetrain. As the robot
         stops much quicker. */
-        leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        leftRearDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightRearDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        LeftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        RightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        LeftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        RightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
         /* Send telemetry message to signify robot waiting */
@@ -148,10 +148,10 @@ public class SimpleDrive extends LinearOpMode {
             double frontRightPower = (rotY - rotX - rx) / denominator;
             double backRightPower = (rotY + rotX - rx) / denominator;
 
-            leftFrontDrive.setPower(frontLeftPower);
-            leftRearDrive.setPower(backLeftPower);
-            rightFrontDrive.setPower(frontRightPower);
-            rightRearDrive.setPower(backRightPower);
+            LeftFront.setPower(frontLeftPower);
+            LeftRear.setPower(backLeftPower);
+            RightFront.setPower(frontRightPower);
+            RightRear.setPower(backRightPower);
 
         }
     }

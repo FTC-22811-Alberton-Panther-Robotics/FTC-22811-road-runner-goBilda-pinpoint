@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Roadrunner;
+package org.firstinspires.ftc.teamcode;
 
 import
         androidx.annotation.NonNull;
@@ -42,10 +42,10 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
-import org.firstinspires.ftc.teamcode.Roadrunner.messages.DriveCommandMessage;
-import org.firstinspires.ftc.teamcode.Roadrunner.messages.MecanumCommandMessage;
-import org.firstinspires.ftc.teamcode.Roadrunner.messages.MecanumLocalizerInputsMessage;
-import org.firstinspires.ftc.teamcode.Roadrunner.messages.PoseMessage;
+import org.firstinspires.ftc.teamcode.messages.DriveCommandMessage;
+import org.firstinspires.ftc.teamcode.messages.MecanumCommandMessage;
+import org.firstinspires.ftc.teamcode.messages.MecanumLocalizerInputsMessage;
+import org.firstinspires.ftc.teamcode.messages.PoseMessage;
 
 import java.lang.Math;
 import java.util.Arrays;
@@ -71,8 +71,8 @@ public class MecanumDrive {
 
         // TODO: ROADRUNNER TUNING TO CALCULATE FEEDFORWARD
         // feedforward parameters (in tick units)
-        public double kS = 0.7514910438385098;
-        public double kV = 0.19963225653383668;
+        public double kS = 0.7816228555809692;
+        public double kV = 0.22385642938578074;
         public double kA = 0.03;
 
         // path profile parameters (in inches)

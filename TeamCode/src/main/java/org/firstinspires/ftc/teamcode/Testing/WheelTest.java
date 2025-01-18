@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 //TODO: Comment out the @Disabled line (add a couple of slashes // before it) when you are ready for this program to be visible on the driver hub
-@Disabled
+//@Disabled
 @TeleOp(name="Wheel Test Code")
 public class WheelTest extends LinearOpMode {
     public DcMotor leftFrontDrive;
@@ -49,11 +49,11 @@ public class WheelTest extends LinearOpMode {
                 leftFrontDrive.setPower(.3);
             } else leftFrontDrive.setPower(0);
 
-            if(gamepad1.y){
+            if(gamepad1.a){
                 leftRearDrive.setPower(.3);
             } else leftRearDrive.setPower(0);
 
-            if(gamepad1.a){
+            if(gamepad1.y){
                 rightFrontDrive.setPower(.3);
             } else rightFrontDrive.setPower(0);
 
