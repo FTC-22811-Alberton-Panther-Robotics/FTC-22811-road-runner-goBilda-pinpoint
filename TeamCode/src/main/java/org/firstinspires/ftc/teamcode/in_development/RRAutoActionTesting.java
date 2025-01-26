@@ -9,6 +9,7 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -21,6 +22,7 @@ public class RRAutoActionTesting extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
         Servo intakeLeft = hardwareMap.servo.get("servo");
+        DcMotor motor = hardwareMap.dcMotor.get("motor");
 
         waitForStart();
 
@@ -29,6 +31,9 @@ public class RRAutoActionTesting extends LinearOpMode {
                 .lineToX(64)
                 .stopAndAdd(new PatientServoAction(intakeLeft, 1))
                 .lineToX(0)
+                .stopAndAdd(new PatientMotorAction(motor, 100))
+                .lineToX(40)
+                .stopAndAdd(new PatientMotorAction(motor, 10))
                 .build());
     }
 
@@ -36,9 +41,9 @@ public class RRAutoActionTesting extends LinearOpMode {
         Servo servo;
         double position;
 
-        public ServoAction(Servo s, double p) {
+        public ServoAction(Servo s, double pos) {
             this.servo = s;
-            this.position = p;
+            this.position = pos;
         }
 
         @Override
@@ -53,9 +58,9 @@ public class RRAutoActionTesting extends LinearOpMode {
         double position;
         ElapsedTime timer;
 
-        public PatientServoAction(Servo s, double p) {
+        public PatientServoAction(Servo s, double pos) {
             this.servo = s;
-            this.position = p;
+            this.position = pos;
         }
 
         @Override
@@ -67,6 +72,24 @@ public class RRAutoActionTesting extends LinearOpMode {
 
             // do we need to keep running?
             return timer.seconds() < 3;
+        }
+    }
+
+    public class PatientMotorAction implements Action {
+        DcMotor motor;
+        int position;
+
+        public PatientMotorAction(DcMotor m, int pos) {
+            this.motor = m;
+            this.position = pos;
+        }
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            motor.setTargetPosition(position);
+            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motor.setPower(.5);
+            return motor.isBusy();
         }
     }
 }

@@ -101,7 +101,7 @@ public class RobotHardware {
     // Arm Variables
     public int armPositionIndex = 0;
     private int armTargetPosition = 0;
-    public boolean holdArm = true; // consider triggering the hold behavior in the opMode with a button press. TRUE: maintain arm power after RUN_TO_POSITION is complete, FALSE: stop arm power
+    public boolean holdArm = true; // consider triggering the hold behavior in the opMode with a button press. TRUE: maintain arm position after RUN_TO_POSITION is complete, FALSE: stop arm position
 
     // Lift Constants
     private static final long LIFT_POSITION_TIMEOUT = 3000;
@@ -176,11 +176,11 @@ public class RobotHardware {
     * Key Components:
     * States: Represent the different possible conditions or modes of the system (e.g., "idle," "moving," "holding," "error").
     * Transitions: Define the rules for moving from one state to another based on events or conditions (e.g., sensor readings, user input, timeouts).
-    * Actions: Specify the actions to be performed when entering or exiting a state or during a transition (e.g., setting motor power, updating variables, displaying messages)
+    * Actions: Specify the actions to be performed when entering or exiting a state or during a transition (e.g., setting motor position, updating variables, displaying messages)
     */
      public void updateArmState(){
         switch (armCurrentState) {
-            // In the idle state it shuts off power to the motor as long as it stays close to its target power,
+            // In the idle state it shuts off position to the motor as long as it stays close to its target position,
             // this saves battery but is more prone to drooping and wobble from engaging & disengaging the motor
             case IDLE:
                 arm.setPower(0);
@@ -195,7 +195,7 @@ public class RobotHardware {
                 arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 int distance = armTargetPosition - arm.getCurrentPosition(); // This is used to calculate which direction the motor is going to move to adjust gravity correctly (add speed when going up, slow when going down)
                 double gravityCompensation = 300 * Math.cos(Math.toRadians(calculateAngleFromEncoderValue(arm.getCurrentPosition()))); // Adjust gravity compensation as needed
-                double velocity = 1000; // TODO: See https://www.ctrlaltftc.com/feedforward-control. This should not be setting velocity. The intention here is to create a Feed Forward effect that compensates the arm movement for gravity, however power should be set instead, or perhaps acceleration.
+                double velocity = 1000; // TODO: See https://www.ctrlaltftc.com/feedforward-control. This should not be setting velocity. The intention here is to create a Feed Forward effect that compensates the arm movement for gravity, however position should be set instead, or perhaps acceleration.
                 if (distance >= 0) {velocity += gravityCompensation;}
                 else {velocity -= gravityCompensation;}
                 armEx.setVelocity(velocity);
@@ -212,8 +212,8 @@ public class RobotHardware {
                     else armCurrentState = ArmState.IDLE;
                 }
                 break;
-            // The holding power state only happens if holdArm is toggled true (Press the back button in CompetitionTeleop)
-            // it will keep power on to the motor the whole time, which helps maintain power more rigidly but draws more power.
+            // The holding position state only happens if holdArm is toggled true (Press the back button in CompetitionTeleop)
+            // it will keep position on to the motor the whole time, which helps maintain position more rigidly but draws more position.
             case HOLDING_POSITION:
                 if (!holdArm) {armCurrentState = ArmState.IDLE;}
                 else if (Math.abs(armTargetPosition - arm.getCurrentPosition()) > armEx.getTargetPositionTolerance()) {
@@ -243,7 +243,7 @@ public class RobotHardware {
                 break;
         }
     }
-    // Public method that Opmodes can call to set the target power for the arm state machine
+    // Public method that Opmodes can call to set the target position for the arm state machine
     public void setArmAngle(double targetAngle){
         this.armTargetPosition = (int) calculateArmEncoderValue(targetAngle - ARM_STARTING_ANGLE_OFFSET);
     }
@@ -258,13 +258,13 @@ public class RobotHardware {
     public double getArmCurrentAmps(){
         return armEx.getCurrent(CurrentUnit.AMPS);
     }
-    // Function to calculate encoder power from target angle
+    // Function to calculate encoder position from target angle
     private int calculateArmEncoderValue(double armAngle) {
         int ticksPerRevolution = ARM_ROTATE_ENCODER_RESOLUTION * ARM_ROTATE_GEAR_RATIO;
         double ticksPerDegree = (double) ticksPerRevolution / 360;
         return (int) (armAngle * ticksPerDegree);
     }
-    // Function to calculate arm angle from encoder power
+    // Function to calculate arm angle from encoder position
     private double calculateAngleFromEncoderValue(int encoderPosition) {
         int ticksPerRevolution = ARM_ROTATE_ENCODER_RESOLUTION * ARM_ROTATE_GEAR_RATIO;
         double degreesPerTick = 360.0 / ticksPerRevolution;
@@ -280,7 +280,7 @@ public class RobotHardware {
             setArmAngle(getArmAngleRelativeToZero() - ARM_INCREMENT_DEGREES);
         }
     }
-    // Get the encoder information for the arm rotation motor and convert it to degrees.Adjust for starting/resting power.
+    // Get the encoder information for the arm rotation motor and convert it to degrees.Adjust for starting/resting position.
     public double getArmAngleRelativeToZero(){
         int encoderCounts = arm.getCurrentPosition();
         double angleRelativeToZero = calculateAngleFromEncoderValue(encoderCounts) + ARM_STARTING_ANGLE_OFFSET;
@@ -377,7 +377,7 @@ public class RobotHardware {
                 break;
         }
     }
-    // Public method that Opmodes can call to set the target power for the lift state machine
+    // Public method that Opmodes can call to set the target position for the lift state machine
     public void setLiftPosition(int targetPosition){
         this.liftTargetPosition = targetPosition;
         this.leftLiftDistanceToTarget = targetPosition - leftLift.getCurrentPosition();
@@ -502,7 +502,7 @@ public class RobotHardware {
 
     // Gripper Code
     /**
-     * Send the gripper the new power to go to
+     * Send the gripper the new position to go to
      * @param position value from 0 to 1
      */
     public void setGripperPosition(double position) {
@@ -524,7 +524,7 @@ public class RobotHardware {
 
     // Wrist Code
     /**
-     * Send the wrist to a certain power
+     * Send the wrist to a certain position
      * @param position is a number from 0 to 1
      */
     public void setWristPosition(double position){
