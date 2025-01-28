@@ -85,6 +85,8 @@ public class GeminiTeleop extends LinearOpMode {
     }
 
     // Hardware
+    private DcMotor rightActuator = null;
+    private DcMotor leftActuator = null;
     private DcMotor leftFrontDrive = null;
     private DcMotor rightFrontDrive = null;
     private DcMotor leftBackDrive = null;
@@ -177,6 +179,8 @@ public class GeminiTeleop extends LinearOpMode {
      */
     private void initializeHardware() {
         // Motors
+        rightActuator = hardwareMap.dcMotor.get("left_actuator");
+        leftActuator = hardwareMap.dcMotor.get("right_actuator");
         leftFrontDrive = hardwareMap.dcMotor.get("left_front_drive");
         leftBackDrive = hardwareMap.dcMotor.get("left_rear_drive");
         rightFrontDrive = hardwareMap.dcMotor.get("right_front_drive");
