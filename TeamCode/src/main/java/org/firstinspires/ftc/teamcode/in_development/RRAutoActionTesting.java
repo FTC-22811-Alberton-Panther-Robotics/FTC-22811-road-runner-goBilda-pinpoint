@@ -21,19 +21,22 @@ public class RRAutoActionTesting extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
-        Servo intakeLeft = hardwareMap.servo.get("servo");
-        DcMotor motor = hardwareMap.dcMotor.get("motor");
+        Servo arm = hardwareMap.servo.get("arm");
+        DcMotor lift = hardwareMap.dcMotor.get("lift");
 
         waitForStart();
 
         Actions.runBlocking(
             drive.actionBuilder(new Pose2d(0,0,0))
                 .lineToX(64)
-                .stopAndAdd(new PatientServoAction(intakeLeft, 1))
+                .stopAndAdd(new PatientServoAction(arm, 1))
                 .lineToX(0)
-                .stopAndAdd(new PatientMotorAction(motor, 100))
+                .stopAndAdd(new MotorRunToPositionAction(lift, 100, 1000))
                 .lineToX(40)
-                .stopAndAdd(new PatientMotorAction(motor, 10))
+                .stopAndAdd(new WaitUntilMotorDoneAction(lift))
+                .lineToX(64)
+                .stopAndAdd(new MotorRunToPositionAction(lift, 10, 1000))
+                .stopAndAdd(new WaitUntilMotorDoneAction(lift))
                 .build());
     }
 
@@ -75,13 +78,14 @@ public class RRAutoActionTesting extends LinearOpMode {
         }
     }
 
-    public class PatientMotorAction implements Action {
+    public class MotorRunToPositionAction implements Action {
         DcMotor motor;
         int position;
+        int motorVelocity;
 
-        public PatientMotorAction(DcMotor m, int pos) {
+        public MotorRunToPositionAction(DcMotor m, int position, int motorVelocity) {
             this.motor = m;
-            this.position = pos;
+            this.position = position;
         }
 
         @Override
@@ -89,7 +93,21 @@ public class RRAutoActionTesting extends LinearOpMode {
             motor.setTargetPosition(position);
             motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             motor.setPower(.5);
-            return motor.isBusy();
+            return false;
         }
     }
+
+    public class WaitUntilMotorDoneAction implements Action {
+        DcMotor motor;
+
+        public WaitUntilMotorDoneAction(DcMotor m) {
+            this.motor = m;
+        }
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            return !motor.isBusy();
+        }
+    }
+
 }

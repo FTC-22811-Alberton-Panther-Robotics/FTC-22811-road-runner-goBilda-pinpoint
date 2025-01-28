@@ -298,7 +298,7 @@ public class GoBildaRi3D2425 extends LinearOpMode {
             /* Here we implement a set of if else statements to set our arm to different scoring positions.
             We check to see if a specific button is pressed, and then move the arm (and sometimes
             intakeLeft and wrist) to match. For example, if we click the right bumper we want the robot
-            to start collecting. So it moves the armPosition to the ARM_COLLECT position,
+            to start collecting. So it moves the liftPosition to the ARM_COLLECT position,
             it folds out the wrist to make sure it is in the correct orientation to intakeLeft, and it
             turns the intakeLeft on to the COLLECT mode.*/
 
@@ -380,7 +380,7 @@ public class GoBildaRi3D2425 extends LinearOpMode {
             }
 
            /* Here we set the target position of our arm to match the variable that was selected
-            by the driver. We add the armPosition Variable to our armPositionFudgeFactor, before adding
+            by the driver. We add the liftPosition Variable to our armPositionFudgeFactor, before adding
             our armLiftComp, which adjusts the arm height for different lift extensions.
             We also set the target velocity (speed) the motor runs at, and use setMode to run it.*/
 
