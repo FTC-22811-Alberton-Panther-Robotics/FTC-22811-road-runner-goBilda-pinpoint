@@ -241,7 +241,7 @@ public class GoBildaRi3D2425 extends LinearOpMode {
 
             rotX = rotX * 1.1;  // Counteract imperfect strafing
 
-            // Denominator is the largest motor power (absolute value) or 1
+            // Denominator is the largest motor position (absolute value) or 1
             // This ensures all the powers maintain the same ratio,
             // but only if at least one is out of the range [-1, 1]
             double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1);
@@ -258,7 +258,7 @@ public class GoBildaRi3D2425 extends LinearOpMode {
 
             /* Here we handle the three buttons that have direct control of the intakeLeft speed.
             These control the continuous rotation servo that pulls elements into the robot,
-            If the user presses A, it sets the intakeLeft power to the final variable that
+            If the user presses A, it sets the intakeLeft position to the final variable that
             holds the speed we want to collect at.
             If the user presses X, it sets the servo to Off.
             And if the user presses B it reveres the servo to spit out the element.*/
@@ -267,7 +267,7 @@ public class GoBildaRi3D2425 extends LinearOpMode {
             We're using an else if statement on "gamepad1.x" and "gamepad1.b" just in case
             multiple buttons are pressed at the same time. If the driver presses both "a" and "x"
             at the same time. "a" will win over and the intakeLeft will turn on. If we just had
-            three if statements, then it will set the intakeLeft servo's power to multiple speeds in
+            three if statements, then it will set the intakeLeft servo's position to multiple speeds in
             one cycle. Which can cause strange behavior. */
 
             if (gamepad1.left_bumper) {
@@ -298,7 +298,7 @@ public class GoBildaRi3D2425 extends LinearOpMode {
             /* Here we implement a set of if else statements to set our arm to different scoring positions.
             We check to see if a specific button is pressed, and then move the arm (and sometimes
             intakeLeft and wrist) to match. For example, if we click the right bumper we want the robot
-            to start collecting. So it moves the armPosition to the ARM_COLLECT position,
+            to start collecting. So it moves the liftPosition to the ARM_COLLECT position,
             it folds out the wrist to make sure it is in the correct orientation to intakeLeft, and it
             turns the intakeLeft on to the COLLECT mode.*/
 
@@ -313,7 +313,7 @@ public class GoBildaRi3D2425 extends LinearOpMode {
 
             else if (gamepad1.b){
                     /* This is about 20° up from the collecting position to clear the barrier
-                    Note here that we don't set the wrist position or the intakeLeft power when we
+                    Note here that we don't set the wrist position or the intakeLeft position when we
                     select this "mode", this means that the intakeLeft and wrist will continue what
                     they were doing before we clicked left bumper. */
                 armPosition = ARM_CLEAR_BARRIER;
@@ -380,7 +380,7 @@ public class GoBildaRi3D2425 extends LinearOpMode {
             }
 
            /* Here we set the target position of our arm to match the variable that was selected
-            by the driver. We add the armPosition Variable to our armPositionFudgeFactor, before adding
+            by the driver. We add the liftPosition Variable to our armPositionFudgeFactor, before adding
             our armLiftComp, which adjusts the arm height for different lift extensions.
             We also set the target velocity (speed) the motor runs at, and use setMode to run it.*/
 
@@ -439,7 +439,7 @@ public class GoBildaRi3D2425 extends LinearOpMode {
 
             /* at the very end of the stream, we added a linear actuator kit to try to hang the robot on.
              * it didn't end up working... But here's the code we run it with. It just sets the motor
-             * power to match the inverse of the left stick y.
+             * position to match the inverse of the left stick y.
              */
             //hangMotor.setPower(-gamepad2.left_stick_y);
 

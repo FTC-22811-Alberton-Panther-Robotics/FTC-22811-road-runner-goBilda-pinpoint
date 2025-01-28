@@ -9,6 +9,7 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -20,15 +21,22 @@ public class RRAutoActionTesting extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
-        Servo intakeLeft = hardwareMap.servo.get("servo");
+        Servo arm = hardwareMap.servo.get("arm");
+        DcMotor lift = hardwareMap.dcMotor.get("lift");
 
         waitForStart();
 
         Actions.runBlocking(
             drive.actionBuilder(new Pose2d(0,0,0))
                 .lineToX(64)
-                .stopAndAdd(new PatientServoAction(intakeLeft, 1))
+                .stopAndAdd(new PatientServoAction(arm, 1))
                 .lineToX(0)
+                .stopAndAdd(new MotorRunToPositionAction(lift, 100, 1000))
+                .lineToX(40)
+                .stopAndAdd(new WaitUntilMotorDoneAction(lift))
+                .lineToX(64)
+                .stopAndAdd(new MotorRunToPositionAction(lift, 10, 1000))
+                .stopAndAdd(new WaitUntilMotorDoneAction(lift))
                 .build());
     }
 
@@ -36,9 +44,9 @@ public class RRAutoActionTesting extends LinearOpMode {
         Servo servo;
         double position;
 
-        public ServoAction(Servo s, double p) {
+        public ServoAction(Servo s, double pos) {
             this.servo = s;
-            this.position = p;
+            this.position = pos;
         }
 
         @Override
@@ -53,9 +61,9 @@ public class RRAutoActionTesting extends LinearOpMode {
         double position;
         ElapsedTime timer;
 
-        public PatientServoAction(Servo s, double p) {
+        public PatientServoAction(Servo s, double pos) {
             this.servo = s;
-            this.position = p;
+            this.position = pos;
         }
 
         @Override
@@ -69,4 +77,37 @@ public class RRAutoActionTesting extends LinearOpMode {
             return timer.seconds() < 3;
         }
     }
+
+    public class MotorRunToPositionAction implements Action {
+        DcMotor motor;
+        int position;
+        int motorVelocity;
+
+        public MotorRunToPositionAction(DcMotor m, int position, int motorVelocity) {
+            this.motor = m;
+            this.position = position;
+        }
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            motor.setTargetPosition(position);
+            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motor.setPower(.5);
+            return false;
+        }
+    }
+
+    public class WaitUntilMotorDoneAction implements Action {
+        DcMotor motor;
+
+        public WaitUntilMotorDoneAction(DcMotor m) {
+            this.motor = m;
+        }
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+            return !motor.isBusy();
+        }
+    }
+
 }

@@ -132,7 +132,7 @@ public class RRCenterstageAutoExample extends LinearOpMode {
         Gripper gripper = new Gripper(hardwareMap);
         Lift lift = new Lift(hardwareMap);
 
-        // vision here that outputs power
+        // vision here that outputs position
         int visionOutputPosition = 1;
 
         TrajectoryActionBuilder tab1 = drive.actionBuilder(initialPose)
