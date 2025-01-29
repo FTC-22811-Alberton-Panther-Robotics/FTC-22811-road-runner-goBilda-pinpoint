@@ -78,10 +78,14 @@ public class GeminiTeleop extends LinearOpMode {
     private static final double ARM_TRANSFER = 1; // TODO: Example value, replace with actual value
     private static final double CLAW_OPEN = 1; // TODO: Example value, replace with actual value
     private static final double CLAW_CLOSED = 0; // TODO: Example value, replace with actual value
+    private static final double ACTUATORS_COLLAPSED_INTO_ROBOT = 0;
+    private static final double ACTUATORS_HANG = 200; // TODO: Example value, replace with actual value
+    private static final double ACTUATORS_FULLY_EXTENDED = 300; // TODO: Example value, replace with actual value
+    private static final double ACTUATORS_VELOCITY = 2100;
 
     // Enums
     private enum PresetState {
-        SCORE_SPECIMEN, GRAB_SPECIMEN, TRANSFER, COLLECT, FOLDED, INTAKE, COLLECTION_SUCCESSFUL, IDLE
+        SCORE_SPECIMEN, GRAB_SPECIMEN, TRANSFER, COLLECT, FOLDED, INTAKE, COLLECTION_SUCCESSFUL, PRE_HANG, HANG, IDLE
     }
 
     // Hardware
@@ -102,6 +106,7 @@ public class GeminiTeleop extends LinearOpMode {
     private PresetState currentPresetState = PresetState.FOLDED;
     private double liftTargetPosition = LIFT_COLLAPSED_INTO_ROBOT;
     private double slideTargetPosition = SLIDE_COLLAPSED_INTO_ROBOT;
+    private double actuatorsTargetPosition = ACTUATORS_COLLAPSED_INTO_ROBOT;
     private ElapsedTime sequenceTimer = new ElapsedTime();
 
     // Rumble
@@ -157,14 +162,17 @@ public class GeminiTeleop extends LinearOpMode {
                 resetIMU();
             }
 
-            // Control the intake based on gamepad input
+            // Control the intake based on gamepad input and presets
             controlIntake();
 
-            // Control the lift based on gamepad input
+            // Control the lift based on gamepad input and presets
             controlLift();
 
-            // Control the slide based on gamepad input
+            // Control the slide based on gamepad input and presets
             controlSlide();
+
+            // Control the left and right actuators based on gamepad input and presets
+            controlActuators();
 
             // Update the loop time and cycle time
             updateTiming();
@@ -335,6 +343,36 @@ public class GeminiTeleop extends LinearOpMode {
     }
 
     /**
+     * Controls the left and right actuator motors' movements and positions.
+     */
+    private void controlActuators() {
+        // Manual Slide Control
+        actuatorsTargetPosition += (gamepad2.right_trigger - gamepad2.left_trigger) * ACTUATORS_VELOCITY * cycleTime;
+
+        // Set the target position and velocity
+        leftActuator.setTargetPosition((int) actuatorsTargetPosition);
+        rightActuator.setTargetPosition((int) actuatorsTargetPosition);
+        ((DcMotorEx) leftActuator).setVelocity(ACTUATORS_VELOCITY);
+        ((DcMotorEx) rightActuator).setVelocity(ACTUATORS_VELOCITY);
+        leftActuator.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightActuator.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        // Check for current limit
+        if (((DcMotorEx) leftActuator).isOverCurrent()) {
+            telemetry.addLine("LEFT ACTUATOR EXCEEDED CURRENT LIMIT!");
+            controlRumble(gamepad2, true);
+        } else {
+            controlRumble(gamepad2, false);
+        }
+        if (((DcMotorEx) rightActuator).isOverCurrent()) {
+            telemetry.addLine("RIGHT ACTUATOR EXCEEDED CURRENT LIMIT!");
+            controlRumble(gamepad2, true);
+        } else {
+            controlRumble(gamepad2, false);
+        }
+    }
+
+    /**
      * Calculates and updates the `cycleTime` and `loopTime` variables.
      */
     private void updateTiming() {
@@ -351,7 +389,10 @@ public class GeminiTeleop extends LinearOpMode {
         telemetry.addData("Lift", "Target: %d, Encoder: %d, mm: %.2f",
                 liftMotor.getTargetPosition(), liftMotor.getCurrentPosition(),
                 liftMotor.getCurrentPosition() / LIFT_TICKS_PER_MM);
-        telemetry.addData("Arm State", currentPresetState);
+        telemetry.addData("Preset State", currentPresetState);
+        telemetry.addData("Slide", "Target: %d, Encoder: %d, mm: %.2f", slideMotor.getTargetPosition(), slideMotor.getCurrentPosition());
+        telemetry.addData("Claw", "Position: %.2f", armServo.getPosition());
+        telemetry.addData("Actuators", "Left: %.2f, Right: %.2f", leftActuator.getCurrentPosition(), rightActuator.getCurrentPosition());
         telemetry.addData("Cycle Time", "%.4f seconds", cycleTime);
         telemetry.update();
     }
@@ -388,6 +429,14 @@ public class GeminiTeleop extends LinearOpMode {
             case COLLECTION_SUCCESSFUL: // TODO: Consider combining with transfer
                 slideTargetPosition = SLIDE_COLLAPSED_INTO_ROBOT;
                 intakeServo.setPower(INTAKE_OFF);
+                currentPresetState = PresetState.IDLE;
+                break;
+            case PRE_HANG:
+                actuatorsTargetPosition = ACTUATORS_FULLY_EXTENDED;
+                currentPresetState = PresetState.IDLE;
+                break;
+            case HANG:
+                actuatorsTargetPosition = ACTUATORS_HANG;
                 currentPresetState = PresetState.IDLE;
                 break;
             case IDLE:
