@@ -70,8 +70,8 @@ public class GeminiTeleop extends LinearOpMode {
     private static final double INTAKE_OFF = 0.0;
     private static final double INTAKE_DEPOSIT = 0.5;
     private static final double SLIDE_FULLY_EXTENDED = 300; // TODO: Example value, replace with actual value
-    private static final double SLIDE_TICKS_PER_MM = 28 * 12 / 120.0;
-    private static final double SLIDE_COLLAPSED_INTO_ROBOT = 0; // RevRobotics 28 ticks/rev motor, with 12:1 gear reduction, and belt travel of 120mm/rev
+    private static final double SLIDE_TICKS_PER_MM = 28 * 12 / 120.0; // RevRobotics 28 ticks/rev motor, with 12:1 gear reduction, and belt travel of 120mm/rev
+    private static final double SLIDE_COLLAPSED_INTO_ROBOT = 0;
     private static final double SLIDE_VELOCITY = 2100;
     private static final double ARM_SCORE_SPECIMEN = .5; // TODO: Example value, replace with actual value
     private static final double ARM_GRAB_SPECIMEN = -1; // TODO: Example value, replace with actual value
@@ -272,7 +272,7 @@ public class GeminiTeleop extends LinearOpMode {
 
         rotX = rotX * 1.1;  // Counteract imperfect strafing
 
-        // Denominator is the largest motor power (absolute value) or 1
+        // Denominator is the largest motor position (absolute value) or 1
         // This ensures all the powers maintain the same ratio,
         // but only if at least one is out of the range [-1, 1]
         double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1);
@@ -390,7 +390,7 @@ public class GeminiTeleop extends LinearOpMode {
                 liftMotor.getTargetPosition(), liftMotor.getCurrentPosition(),
                 liftMotor.getCurrentPosition() / LIFT_TICKS_PER_MM);
         telemetry.addData("Preset State", currentPresetState);
-        telemetry.addData("Slide", "Target: %d, Encoder: %d, mm: %.2f", slideMotor.getTargetPosition(), slideMotor.getCurrentPosition());
+        telemetry.addData("Slide", "Target: %d, Encoder: %d, mm: %.2f", slideMotor.getTargetPosition(), slideMotor.getCurrentPosition(), slideMotor.getCurrentPosition() / SLIDE_TICKS_PER_MM);
         telemetry.addData("Claw", "Position: %.2f", armServo.getPosition());
         telemetry.addData("Actuators", "Left: %.2f, Right: %.2f", leftActuator.getCurrentPosition(), rightActuator.getCurrentPosition());
         telemetry.addData("Cycle Time", "%.4f seconds", cycleTime);

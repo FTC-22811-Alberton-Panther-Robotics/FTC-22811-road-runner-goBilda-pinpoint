@@ -45,40 +45,82 @@ public class MeepMeepTesting {
                 .build();
 
         bot2.runAction(bot2.getDrive().actionBuilder(new Pose2d(-8, 61.7, Math.toRadians(-90)))
+                // start - swing arm to score specimen position and move toward high rung
+                // ...
                 .setTangent(Math.toRadians(-90))
                 .lineToY(35)
-                .waitSeconds(1)
+                // raise lift until specimen has been scored, then let go of specimen, rotate arm back and lower lift
+                // ...
+
+                // Move around submersible to push samples to observation zone
                 .setTangent(Math.toRadians(0))
                 .lineToX(-16)
                 .splineToLinearHeading(new Pose2d(-35,32,Math.toRadians(-90)), Math.toRadians(-90))
                 .lineToY(20)
                 .splineToLinearHeading(new Pose2d(-45,12,Math.toRadians(-90)), Math.toRadians(90))
+
+                // Push sample 1 to observation zone
                 .lineToY(53)
                 .lineToY(12)
                 .splineToLinearHeading(new Pose2d(-53,10,Math.toRadians(-90)), Math.toRadians(90))
+                // Push sample 2 to observation zone
                 .lineToY(53)
                 .lineToY(12)
                 .splineToLinearHeading(new Pose2d(-61,10,Math.toRadians(-90)), Math.toRadians(90))
+                // Push sample 3 to observation zone
                 .lineToY(56)
+
+                // Grab specimen 2 from sidewall
                 .splineToConstantHeading(new Vector2d(-36,61.7), Math.toRadians(90))
-                .waitSeconds(1)
+                //.stopAndAdd(new ServoAction(claw, CLAW_CLOSED))
+                .waitSeconds(.5)
+                //.stopAndAdd(new MotorRunToPositionAction(lift, (int) LIFT_SPECIMEN_ABOVE_SIDEWALL, LIFT_VELOCITY))
+                //.stopAndAdd(new ServoAction(arm, ARM_SCORE_SPECIMEN))
+                // Move to high rung
                 .splineToConstantHeading(new Vector2d(0,35), Math.toRadians(-90))
-                .waitSeconds(1)
+                // raise lift until specimen has been scored, then let go of specimen, rotate arm back and lower lift
+                //.stopAndAdd(new MotorRunToPositionAction(lift, (int) LIFT_SCORE_SPECIMEN, LIFT_VELOCITY))
+                //.stopAndAdd(new WaitUntilMotorDoneAction(lift))
+                //.stopAndAdd(new ServoAction(arm, ARM_GRAB_SPECIMEN))
+                //.stopAndAdd(new MotorRunToPositionAction(lift, LIFT_COLLAPSED_INTO_ROBOT, LIFT_VELOCITY))
+
+                // Grab specimen 3 from sidewall
                 .setTangent(Math.toRadians(140))
                 .lineToY(40)
-                .splineToLinearHeading(new Pose2d(-36, 61.7, Math.toRadians(-90)), Math.toRadians(90))
-                .waitSeconds(1)
+                .splineToConstantHeading(new Vector2d(-36,61.7), Math.toRadians(90))
+                //.stopAndAdd(new ServoAction(claw, CLAW_CLOSED))
+                .waitSeconds(.5)
+                //.stopAndAdd(new MotorRunToPositionAction(lift, (int) LIFT_SPECIMEN_ABOVE_SIDEWALL, LIFT_VELOCITY))
+                //.stopAndAdd(new ServoAction(arm, ARM_SCORE_SPECIMEN))
+                // Move to high rung
                 .splineToConstantHeading(new Vector2d(0,35), Math.toRadians(-90))
-                .waitSeconds(1)
+                // raise lift until specimen has been scored, then let go of specimen, rotate arm back and lower lift
+                //.stopAndAdd(new MotorRunToPositionAction(lift, (int) LIFT_SCORE_SPECIMEN, LIFT_VELOCITY))
+                //.stopAndAdd(new WaitUntilMotorDoneAction(lift))
+                //.stopAndAdd(new ServoAction(arm, ARM_GRAB_SPECIMEN))
+                //.stopAndAdd(new MotorRunToPositionAction(lift, LIFT_COLLAPSED_INTO_ROBOT, LIFT_VELOCITY))
+
+                // Grab specimen 4 from sidewall
                 .setTangent(Math.toRadians(140))
                 .lineToY(40)
-                .splineToLinearHeading(new Pose2d(-36, 61.7, Math.toRadians(-90)), Math.toRadians(90))
-                .waitSeconds(1)
+                .splineToConstantHeading(new Vector2d(-36,61.7), Math.toRadians(90))
+                //.stopAndAdd(new ServoAction(claw, CLAW_CLOSED))
+                .waitSeconds(.5)
+                //.stopAndAdd(new MotorRunToPositionAction(lift, (int) LIFT_SPECIMEN_ABOVE_SIDEWALL, LIFT_VELOCITY))
+                //.stopAndAdd(new ServoAction(arm, ARM_SCORE_SPECIMEN))
+                // Move to high rung
                 .splineToConstantHeading(new Vector2d(0,35), Math.toRadians(-90))
-                .waitSeconds(1)
+                // raise lift until specimen has been scored, then let go of specimen, rotate arm back and lower lift
+                //.stopAndAdd(new MotorRunToPositionAction(lift, (int) LIFT_SCORE_SPECIMEN, LIFT_VELOCITY))
+                //.stopAndAdd(new WaitUntilMotorDoneAction(lift))
+                //.stopAndAdd(new ServoAction(arm, ARM_GRAB_SPECIMEN))
+                //.stopAndAdd(new MotorRunToPositionAction(lift, LIFT_COLLAPSED_INTO_ROBOT, LIFT_VELOCITY))
+
+                // Move to observation zone
                 .setTangent(Math.toRadians(140))
                 .lineToY(40)
-                .splineToLinearHeading(new Pose2d(-36, 61.7, Math.toRadians(-90)), Math.toRadians(90))
+                .splineToConstantHeading(new Vector2d(-36,61.7), Math.toRadians(90))
+
                 .build());
 
 
