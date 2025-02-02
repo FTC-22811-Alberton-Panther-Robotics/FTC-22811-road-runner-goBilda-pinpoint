@@ -81,10 +81,10 @@ public class RRAutoActionTesting extends LinearOpMode {
                     .lineToY(12)
                     .splineToLinearHeading(new Pose2d(-61,10,Math.toRadians(-90)), Math.toRadians(90))
                     // Push sample 3 to observation zone
-                    .lineToY(56)
+                    .lineToY(53)
 
                     // Grab specimen 2 from sidewall
-                    .splineToConstantHeading(new Vector2d(-36,61.7), Math.toRadians(-90))
+                    .splineToConstantHeading(new Vector2d(-36,61.7), Math.toRadians(90))
                     .stopAndAdd(new ServoAction(claw, CLAW_CLOSED))
                     .waitSeconds(.5)
                     .stopAndAdd(new MotorRunToPositionAction(lift, (int) LIFT_SPECIMEN_ABOVE_SIDEWALL, LIFT_VELOCITY))
@@ -99,8 +99,7 @@ public class RRAutoActionTesting extends LinearOpMode {
 
                     // Grab specimen 3 from sidewall
                     .setTangent(Math.toRadians(140))
-                    .lineToY(40)
-                    .splineToConstantHeading(new Vector2d(-36,61.7), Math.toRadians(-90))
+                    .splineToConstantHeading(new Vector2d(-36,61.7), Math.toRadians(90))
                     .stopAndAdd(new ServoAction(claw, CLAW_CLOSED))
                     .waitSeconds(.5)
                     .stopAndAdd(new MotorRunToPositionAction(lift, (int) LIFT_SPECIMEN_ABOVE_SIDEWALL, LIFT_VELOCITY))
@@ -115,8 +114,7 @@ public class RRAutoActionTesting extends LinearOpMode {
 
                     // Grab specimen 4 from sidewall
                     .setTangent(Math.toRadians(140))
-                    .lineToY(40)
-                    .splineToConstantHeading(new Vector2d(-36,61.7), Math.toRadians(-90))
+                    .splineToConstantHeading(new Vector2d(-36,61.7), Math.toRadians(90))
                     .stopAndAdd(new ServoAction(claw, CLAW_CLOSED))
                     .waitSeconds(.5)
                     .stopAndAdd(new MotorRunToPositionAction(lift, (int) LIFT_SPECIMEN_ABOVE_SIDEWALL, LIFT_VELOCITY))
@@ -131,8 +129,7 @@ public class RRAutoActionTesting extends LinearOpMode {
 
                     // Move to observation zone
                     .setTangent(Math.toRadians(140))
-                    .lineToY(40)
-                    .splineToConstantHeading(new Vector2d(-36,61.7), Math.toRadians(-90))
+                    .splineToConstantHeading(new Vector2d(-36,61.7), Math.toRadians(90))
 
                     .build());
     }
