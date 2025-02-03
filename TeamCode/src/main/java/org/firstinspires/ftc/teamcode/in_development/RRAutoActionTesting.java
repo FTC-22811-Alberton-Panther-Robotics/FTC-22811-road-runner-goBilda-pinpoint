@@ -17,11 +17,14 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.RoadRunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.RoadRunner.PinpointDrive;
 
 @Autonomous(name="RR Auto Action Testing")
 @Disabled
 public class RRAutoActionTesting extends LinearOpMode {
 
+    private PinpointDrive drive;
+    private Pose2d initialPose;
     // Constants
     private static final double LIFT_TICKS_PER_MM = 28 * 12 / 120.0; // RevRobotics 28 ticks/rev motor, with 12:1 gear reduction, and belt travel of 120mm/rev
     private static final int LIFT_VELOCITY = 2100;
@@ -43,7 +46,6 @@ public class RRAutoActionTesting extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
         Servo arm = hardwareMap.servo.get("arm");
         Servo claw = hardwareMap.servo.get("claw");
         //CRServo intake = hardwareMap.crservo.get("intake");
@@ -53,9 +55,11 @@ public class RRAutoActionTesting extends LinearOpMode {
         DcMotor rightActuator = hardwareMap.dcMotor.get("right_actuator");
 
         waitForStart();
+        initialPose = new Pose2d(-8, 61.7, Math.toRadians(-90));
+        drive = new PinpointDrive(hardwareMap, initialPose);
 
         Actions.runBlocking(
-            drive.actionBuilder(new Pose2d(-8, 61.7, Math.toRadians(-90)))
+            drive.actionBuilder(initialPose)
                     // start - swing arm to score specimen position and move toward high rung
                     .stopAndAdd(new ServoAction(arm, ARM_SCORE_SPECIMEN))
                     .setTangent(Math.toRadians(-90))
