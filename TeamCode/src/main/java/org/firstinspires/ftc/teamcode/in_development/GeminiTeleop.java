@@ -66,6 +66,7 @@ public class GeminiTeleop extends LinearOpMode {
     private static final double LIFT_VELOCITY = 2100;
     private static final double LIFT_COLLAPSED_INTO_ROBOT = 0;
     private static final double LIFT_SCORE_SPECIMEN = 100; // TODO: Example value, replace with actual value
+    private static final double LIFT_MAX_HEIGHT = 300; // TODO: Example value, replace with actual value
     private static final double INTAKE_COLLECT = -1.0;
     private static final double INTAKE_OFF = 0.0;
     private static final double INTAKE_DEPOSIT = 0.5;
@@ -73,11 +74,11 @@ public class GeminiTeleop extends LinearOpMode {
     private static final double SLIDE_TICKS_PER_MM = 28 * 12 / 120.0; // RevRobotics 28 ticks/rev motor, with 12:1 gear reduction, and belt travel of 120mm/rev
     private static final double SLIDE_COLLAPSED_INTO_ROBOT = 0;
     private static final double SLIDE_VELOCITY = 2100;
-    private static final double ARM_SCORE_SPECIMEN = .5; // TODO: Example value, replace with actual value
-    private static final double ARM_GRAB_SPECIMEN = -1; // TODO: Example value, replace with actual value
+    private static final double ARM_SCORE_SPECIMEN = .33;
+    private static final double ARM_GRAB_SPECIMEN = 1;
     private static final double ARM_TRANSFER = 1; // TODO: Example value, replace with actual value
-    private static final double CLAW_OPEN = 1; // TODO: Example value, replace with actual value
-    private static final double CLAW_CLOSED = 0; // TODO: Example value, replace with actual value
+    private static final double CLAW_OPEN = 0;
+    private static final double CLAW_CLOSED = 1;
     private static final double ACTUATORS_COLLAPSED_INTO_ROBOT = 0;
     private static final double ACTUATORS_HANG = 200; // TODO: Example value, replace with actual value
     private static final double ACTUATORS_FULLY_EXTENDED = 300; // TODO: Example value, replace with actual value
@@ -146,7 +147,7 @@ public class GeminiTeleop extends LinearOpMode {
             } else if (gamepad1.a){
                 currentPresetState = PresetState.GRAB_SPECIMEN;
             } else if (gamepad1.b){
-                currentPresetState = PresetState.TRANSFER;
+                currentPresetState = PresetState.SCORE_SPECIMEN;
             }
             // Update the preset state based on the current state
             updatePresetState(currentPresetState);
@@ -164,6 +165,9 @@ public class GeminiTeleop extends LinearOpMode {
 
             // Control the intake based on gamepad input and presets
             controlIntake();
+
+            // Control the claw based on gamepad input and presets
+            controlClaw();
 
             // Control the lift based on gamepad input and presets
             controlLift();
@@ -209,14 +213,15 @@ public class GeminiTeleop extends LinearOpMode {
         // Motor Directions
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
         leftRearDrive.setDirection(DcMotor.Direction.REVERSE);
+        liftMotor.setDirection(DcMotor.Direction.REVERSE);
 
         // Zero Power Behavior
         leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftRearDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightRearDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Current Limits
         ((DcMotorEx) liftMotor).setCurrentAlert(5, CurrentUnit.AMPS);
@@ -296,9 +301,9 @@ public class GeminiTeleop extends LinearOpMode {
      * Controls the intake servo based on gamepad button presses.
      */
     private void controlIntake() {
-        if (gamepad1.left_bumper || gamepad2.left_bumper) {
+        if (gamepad2.left_bumper) {
             intakeServo.setPower(INTAKE_COLLECT);
-        } else if (gamepad1.right_bumper || gamepad2.right_bumper) {
+        } else if (gamepad2.right_bumper) {
             intakeServo.setPower(INTAKE_DEPOSIT);
         } else {
             intakeServo.setPower(INTAKE_OFF);
@@ -309,10 +314,10 @@ public class GeminiTeleop extends LinearOpMode {
      * Controls the claw servo based on gamepad button presses.
      */
     private void controlClaw() {
-        if (gamepad1.x) {
-            clawServo.setPosition(CLAW_CLOSED);
-        } else if (gamepad1.y) {
+        if (gamepad1.left_bumper) {
             clawServo.setPosition(CLAW_OPEN);
+        } else if (gamepad1.right_bumper) {
+            clawServo.setPosition(CLAW_CLOSED);
         }
     }
 
@@ -322,6 +327,11 @@ public class GeminiTeleop extends LinearOpMode {
     private void controlLift() {
         // Manual Lift Control
         liftTargetPosition -= gamepad2.left_stick_y * LIFT_VELOCITY * cycleTime;
+        if (liftTargetPosition < LIFT_COLLAPSED_INTO_ROBOT) {
+            liftTargetPosition = LIFT_COLLAPSED_INTO_ROBOT;
+        } //else if (liftTargetPosition > LIFT_MAX_HEIGHT) {
+//            liftTargetPosition = LIFT_MAX_HEIGHT;
+//        }
 
         // Set the target position and velocity
         liftMotor.setTargetPosition((int) (liftTargetPosition));
@@ -343,6 +353,9 @@ public class GeminiTeleop extends LinearOpMode {
     private void controlSlide() {
         // Manual Slide Control
         slideTargetPosition -= gamepad2.right_stick_y * SLIDE_VELOCITY * cycleTime;
+        if (slideTargetPosition < SLIDE_COLLAPSED_INTO_ROBOT) {
+            slideTargetPosition = SLIDE_COLLAPSED_INTO_ROBOT;
+        }
 
         // Set the target position and velocity
         slideMotor.setTargetPosition((int) (slideTargetPosition));
@@ -416,6 +429,7 @@ public class GeminiTeleop extends LinearOpMode {
         telemetry.addData("Slide Target", slideMotor.getTargetPosition());
         telemetry.addData("Slide Encoder:", slideMotor.getCurrentPosition());
         telemetry.addData("Slide mm", slideMotor.getCurrentPosition() / SLIDE_TICKS_PER_MM);
+        telemetry.addData("Arm", armServo.getPosition());
         telemetry.addData("Claw", "Position: %.2f", armServo.getPosition());
         telemetry.addData("Left Actuator", leftActuator.getCurrentPosition());
         telemetry.addData("Right Actuator", rightActuator.getCurrentPosition());
