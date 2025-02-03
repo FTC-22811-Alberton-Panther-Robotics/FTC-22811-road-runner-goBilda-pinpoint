@@ -93,8 +93,8 @@ public class GeminiTeleop extends LinearOpMode {
     private DcMotor leftActuator = null;
     private DcMotor leftFrontDrive = null;
     private DcMotor rightFrontDrive = null;
-    private DcMotor leftBackDrive = null;
-    private DcMotor rightBackDrive = null;
+    private DcMotor leftRearDrive = null;
+    private DcMotor rightRearDrive = null;
     private DcMotor liftMotor = null;
     private DcMotor slideMotor = null;
     private Servo   armServo = null;
@@ -195,9 +195,9 @@ public class GeminiTeleop extends LinearOpMode {
         rightActuator = hardwareMap.dcMotor.get("left_actuator");
         leftActuator = hardwareMap.dcMotor.get("right_actuator");
         leftFrontDrive = hardwareMap.dcMotor.get("left_front_drive");
-        leftBackDrive = hardwareMap.dcMotor.get("left_rear_drive");
+        leftRearDrive = hardwareMap.dcMotor.get("left_rear_drive");
         rightFrontDrive = hardwareMap.dcMotor.get("right_front_drive");
-        rightBackDrive = hardwareMap.dcMotor.get("right_rear_drive");
+        rightRearDrive = hardwareMap.dcMotor.get("right_rear_drive");
         liftMotor = hardwareMap.get(DcMotor.class, "lift");
         slideMotor = hardwareMap.get(DcMotor.class, "slide");
 
@@ -208,13 +208,13 @@ public class GeminiTeleop extends LinearOpMode {
 
         // Motor Directions
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
-        leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
+        leftRearDrive.setDirection(DcMotor.Direction.REVERSE);
 
         // Zero Power Behavior
         leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        leftBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftRearDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightRearDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
@@ -287,9 +287,9 @@ public class GeminiTeleop extends LinearOpMode {
         double backRightPower = (rotY + rotX - rx) / denominator;
 
         leftFrontDrive.setPower(frontLeftPower);
-        leftBackDrive.setPower(backLeftPower);
+        leftRearDrive.setPower(backLeftPower);
         rightFrontDrive.setPower(frontRightPower);
-        rightBackDrive.setPower(backRightPower);
+        rightRearDrive.setPower(backRightPower);
     }
 
     /**
@@ -302,6 +302,17 @@ public class GeminiTeleop extends LinearOpMode {
             intakeServo.setPower(INTAKE_DEPOSIT);
         } else {
             intakeServo.setPower(INTAKE_OFF);
+        }
+    }
+
+    /**
+     * Controls the claw servo based on gamepad button presses.
+     */
+    private void controlClaw() {
+        if (gamepad1.x) {
+            clawServo.setPosition(CLAW_CLOSED);
+        } else if (gamepad1.y) {
+            clawServo.setPosition(CLAW_OPEN);
         }
     }
 
@@ -347,11 +358,11 @@ public class GeminiTeleop extends LinearOpMode {
         }
     }
 
-    /**
+    /**n
      * Controls the arm servo's position.
      */
     private void controlArm() {
-        armServo.setPosition(armServo.getPosition() + (gamepad1.right_trigger - gamepad1.left_trigger)*.1);
+        armServo.setPosition(armServo.getPosition() + (gamepad1.right_trigger - gamepad1.left_trigger) * .1);
     }
 
     /**
