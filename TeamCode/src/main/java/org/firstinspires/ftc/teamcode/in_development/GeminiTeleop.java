@@ -171,6 +171,9 @@ public class GeminiTeleop extends LinearOpMode {
             // Control the slide based on gamepad input and presets
             controlSlide();
 
+            // Control the arm based on gamepad input and presets
+            controlArm();
+
             // Control the left and right actuators based on gamepad input and presets
             controlActuators();
 
@@ -179,6 +182,8 @@ public class GeminiTeleop extends LinearOpMode {
 
             // Update the telemetry
             updateTelemetry();
+
+
         }
     }
 
@@ -343,6 +348,13 @@ public class GeminiTeleop extends LinearOpMode {
     }
 
     /**
+     * Controls the arm servo's position.
+     */
+    private void controlArm() {
+        armServo.setPosition(armServo.getPosition() + (gamepad1.right_trigger - gamepad1.left_trigger)*.1);
+    }
+
+    /**
      * Controls the left and right actuator motors' movements and positions.
      */
     private void controlActuators() {
@@ -386,13 +398,16 @@ public class GeminiTeleop extends LinearOpMode {
      * Sends data to the driver station telemetry.
      */
     private void updateTelemetry() {
-        telemetry.addData("Lift", "Target: %d, Encoder: %d, mm: %.2f",
-                liftMotor.getTargetPosition(), liftMotor.getCurrentPosition(),
-                liftMotor.getCurrentPosition() / LIFT_TICKS_PER_MM);
+        telemetry.addData("Lift Target", liftMotor.getTargetPosition());
+        telemetry.addData("Lift Encoder:", liftMotor.getCurrentPosition());
+        telemetry.addData("Lift mm", liftMotor.getCurrentPosition() / LIFT_TICKS_PER_MM);
         telemetry.addData("Preset State", currentPresetState);
-        telemetry.addData("Slide", "Target: %d, Encoder: %d, mm: %.2f", slideMotor.getTargetPosition(), slideMotor.getCurrentPosition(), slideMotor.getCurrentPosition() / SLIDE_TICKS_PER_MM);
+        telemetry.addData("Slide Target", slideMotor.getTargetPosition());
+        telemetry.addData("Slide Encoder:", slideMotor.getCurrentPosition());
+        telemetry.addData("Slide mm", slideMotor.getCurrentPosition() / SLIDE_TICKS_PER_MM);
         telemetry.addData("Claw", "Position: %.2f", armServo.getPosition());
-        telemetry.addData("Actuators", "Left: %.2f, Right: %.2f", leftActuator.getCurrentPosition(), rightActuator.getCurrentPosition());
+        telemetry.addData("Left Actuator", leftActuator.getCurrentPosition());
+        telemetry.addData("Right Actuator", rightActuator.getCurrentPosition());
         telemetry.addData("Cycle Time", "%.4f seconds", cycleTime);
         telemetry.update();
     }
