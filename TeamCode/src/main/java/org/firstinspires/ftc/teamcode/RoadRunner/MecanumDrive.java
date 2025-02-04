@@ -66,8 +66,8 @@ public class MecanumDrive {
         // TODO: ROADRUNNER TUNING TO CALCULATE TRACKWIDTHTICKS
         // drive model parameters
         public double inPerTick = 1; // If you're using OTOS/Pinpoint leave this at 1 (all values will be in inches, 1 tick = 1 inch)
-        public double lateralInPerTick = inPerTick; // Tune this with LateralRampLogger (even if you use OTOS/Pinpoint)
-        public double trackWidthTicks = 15.079567351033875;
+        public double lateralInPerTick = 0.7409438238553617; // Tune this with LateralRampLogger (even if you use OTOS/Pinpoint)
+        public double trackWidthTicks = 12.687238005553118;
 
         // TODO: ROADRUNNER TUNING TO CALCULATE FEEDFORWARD
         // feedforward parameters (in tick units)

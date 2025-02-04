@@ -71,8 +71,8 @@ public class GeminiTeleop extends LinearOpMode {
     private static final double INTAKE_COLLECT = -1.0;
     private static final double INTAKE_OFF = 0.0;
     private static final double INTAKE_DEPOSIT = 0.5;
-    private static final double SLIDE_FULLY_EXTENDED = 300 * LIFT_TICKS_PER_MM; // TODO: Example value, replace with actual value
     private static final double SLIDE_TICKS_PER_MM = 28 * 12 / 120.0; // RevRobotics 28 ticks/rev motor, with 12:1 gear reduction, and belt travel of 120mm/rev
+    private static final double SLIDE_FULLY_EXTENDED = 300 * SLIDE_TICKS_PER_MM; // TODO: Example value, replace with actual value
     private static final double SLIDE_COLLAPSED_INTO_ROBOT = 0;
     private static final double SLIDE_VELOCITY = 2100;
     private static final double ARM_SCORE_SPECIMEN = .33;
@@ -461,7 +461,6 @@ public class GeminiTeleop extends LinearOpMode {
             case GRAB_SPECIMEN:
                 liftTargetPosition = LIFT_COLLAPSED_INTO_ROBOT;
                 armServo.setPosition(ARM_GRAB_SPECIMEN);
-                clawServo.setPosition(CLAW_OPEN);
                 currentPresetState = PresetState.IDLE;
                 break;
             case TRANSFER:

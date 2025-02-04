@@ -8,7 +8,6 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -16,33 +15,33 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.RoadRunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.RoadRunner.PinpointDrive;
 
 @Autonomous(name="RR Auto Action Testing")
-@Disabled
+//@Disabled
 public class RRAutoActionTesting extends LinearOpMode {
-
     private PinpointDrive drive;
     private Pose2d initialPose;
     // Constants
     private static final double LIFT_TICKS_PER_MM = 28 * 12 / 120.0; // RevRobotics 28 ticks/rev motor, with 12:1 gear reduction, and belt travel of 120mm/rev
     private static final int LIFT_VELOCITY = 2100;
     private static final int LIFT_COLLAPSED_INTO_ROBOT = 0;
-    private static final double LIFT_SPECIMEN_ABOVE_SIDEWALL = 50 * LIFT_TICKS_PER_MM; // TODO: Example value, replace with actual value
-    private static final double LIFT_SCORE_SPECIMEN = 100 * LIFT_TICKS_PER_MM; // TODO: Example value, replace with actual value
+    private static final double LIFT_READY_TO_SCORE_SPECIMEN = 145 * LIFT_TICKS_PER_MM; // TODO: Example value, replace with actual value
+    private static final double LIFT_INITIAL_READY_TO_SCORE_SPECIMEN = 200 * LIFT_TICKS_PER_MM; // TODO: Example value, replace with actual value
+    private static final double LIFT_INITIAL_SCORE = 90 * LIFT_TICKS_PER_MM;
+    private static final double LIFT_SCORE_SPECIMEN = 300 * LIFT_TICKS_PER_MM; // TODO: Example value, replace with actual value
     private static final double INTAKE_COLLECT = -1.0;
     private static final double INTAKE_OFF = 0.0;
     private static final double INTAKE_DEPOSIT = 0.5;
-    private static final int SLIDE_FULLY_EXTENDED = 300; // TODO: Example value, replace with actual value
     private static final double SLIDE_TICKS_PER_MM = 28 * 12 / 120.0; // RevRobotics 28 ticks/rev motor, with 12:1 gear reduction, and belt travel of 120mm/rev
-    private static final int SLIDE_COLLAPSED_INTO_ROBOT = 0;
+    private static final double SLIDE_FULLY_EXTENDED = 300 * SLIDE_TICKS_PER_MM ; // TODO: Example value, replace with actual value
+    private static final double SLIDE_COLLAPSED_INTO_ROBOT = 0;
     private static final int SLIDE_VELOCITY = 2100;
-    private static final double ARM_SCORE_SPECIMEN = .5; // TODO: Example value, replace with actual value
-    private static final double ARM_GRAB_SPECIMEN = -1; // TODO: Example value, replace with actual value
+    private static final double ARM_SCORE_SPECIMEN = .33;
+    private static final double ARM_GRAB_SPECIMEN = 1;
     private static final double ARM_TRANSFER = 1; // TODO: Example value, replace with actual value
-    private static final double CLAW_OPEN = 1; // TODO: Example value, replace with actual value
-    private static final double CLAW_CLOSED = 0; // TODO: Example value, replace with actual value
+    private static final double CLAW_OPEN = 0;
+    private static final double CLAW_CLOSED = 1;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -54,6 +53,9 @@ public class RRAutoActionTesting extends LinearOpMode {
         DcMotor leftActuator = hardwareMap.dcMotor.get("left_actuator");
         DcMotor rightActuator = hardwareMap.dcMotor.get("right_actuator");
 
+        //arm.setPosition(ARM_START);
+        claw.setPosition(CLAW_CLOSED);
+
         waitForStart();
         initialPose = new Pose2d(-8, 61.7, Math.toRadians(-90));
         drive = new PinpointDrive(hardwareMap, initialPose);
@@ -63,77 +65,79 @@ public class RRAutoActionTesting extends LinearOpMode {
                     // start - swing arm to score specimen position and move toward high rung
                     .stopAndAdd(new ServoAction(arm, ARM_SCORE_SPECIMEN))
                     .setTangent(Math.toRadians(-90))
-                    .lineToY(35)
+                    .lineToY(36)
                     // raise lift until specimen has been scored, then let go of specimen, rotate arm back and lower lift
-                    .stopAndAdd(new MotorRunToPositionAction(lift, (int) LIFT_SCORE_SPECIMEN, LIFT_VELOCITY))
-                    .stopAndAdd(new WaitUntilMotorDoneAction(lift))
-                    .stopAndAdd(new ServoAction(arm, ARM_GRAB_SPECIMEN))
-                    .stopAndAdd(new MotorRunToPositionAction(lift, LIFT_COLLAPSED_INTO_ROBOT, LIFT_VELOCITY))
-
-                    // Move around submersible to push samples to observation zone
-                    .setTangent(Math.toRadians(0))
-                    .lineToX(-16)
-                    .splineToLinearHeading(new Pose2d(-35,32,Math.toRadians(-90)), Math.toRadians(-90))
-                    .lineToY(20)
-                    .splineToLinearHeading(new Pose2d(-45,12,Math.toRadians(-90)), Math.toRadians(90))
-                    // Push sample 1 to observation zone
-                    .lineToY(53)
-                    .lineToY(12)
-                    .splineToLinearHeading(new Pose2d(-53,10,Math.toRadians(-90)), Math.toRadians(90))
-                    // Push sample 2 to observation zone
-                    .lineToY(53)
-                    .lineToY(12)
-                    .splineToLinearHeading(new Pose2d(-61,10,Math.toRadians(-90)), Math.toRadians(90))
-                    // Push sample 3 to observation zone
-                    .lineToY(53)
-
-                    // Grab specimen 2 from sidewall
-                    .splineToConstantHeading(new Vector2d(-36,61.7), Math.toRadians(90))
-                    .stopAndAdd(new ServoAction(claw, CLAW_CLOSED))
+                    .stopAndAdd(new MotorRunToPositionAction(lift, (int) LIFT_INITIAL_READY_TO_SCORE_SPECIMEN, LIFT_VELOCITY))
                     .waitSeconds(.5)
-                    .stopAndAdd(new MotorRunToPositionAction(lift, (int) LIFT_SPECIMEN_ABOVE_SIDEWALL, LIFT_VELOCITY))
-                    .stopAndAdd(new ServoAction(arm, ARM_SCORE_SPECIMEN))
-                    // Move to high rung
-                    .splineToConstantHeading(new Vector2d(0,35), Math.toRadians(-90))
-                    // raise lift until specimen has been scored, then let go of specimen, rotate arm back and lower lift
-                    .stopAndAdd(new MotorRunToPositionAction(lift, (int) LIFT_SCORE_SPECIMEN, LIFT_VELOCITY))
-                    .stopAndAdd(new WaitUntilMotorDoneAction(lift))
+                    .stopAndAdd(new MotorRunToPositionAction(lift, (int) LIFT_INITIAL_SCORE, LIFT_VELOCITY))
+                    .waitSeconds(1)
                     .stopAndAdd(new ServoAction(arm, ARM_GRAB_SPECIMEN))
-                    .stopAndAdd(new MotorRunToPositionAction(lift, LIFT_COLLAPSED_INTO_ROBOT, LIFT_VELOCITY))
+                    .waitSeconds(2)
 
-                    // Grab specimen 3 from sidewall
-                    .setTangent(Math.toRadians(140))
-                    .splineToConstantHeading(new Vector2d(-36,61.7), Math.toRadians(90))
-                    .stopAndAdd(new ServoAction(claw, CLAW_CLOSED))
-                    .waitSeconds(.5)
-                    .stopAndAdd(new MotorRunToPositionAction(lift, (int) LIFT_SPECIMEN_ABOVE_SIDEWALL, LIFT_VELOCITY))
-                    .stopAndAdd(new ServoAction(arm, ARM_SCORE_SPECIMEN))
-                    // Move to high rung
-                    .splineToConstantHeading(new Vector2d(0,35), Math.toRadians(-90))
-                    // raise lift until specimen has been scored, then let go of specimen, rotate arm back and lower lift
-                    .stopAndAdd(new MotorRunToPositionAction(lift, (int) LIFT_SCORE_SPECIMEN, LIFT_VELOCITY))
-                    .stopAndAdd(new WaitUntilMotorDoneAction(lift))
-                    .stopAndAdd(new ServoAction(arm, ARM_GRAB_SPECIMEN))
-                    .stopAndAdd(new MotorRunToPositionAction(lift, LIFT_COLLAPSED_INTO_ROBOT, LIFT_VELOCITY))
-
-                    // Grab specimen 4 from sidewall
-                    .setTangent(Math.toRadians(140))
-                    .splineToConstantHeading(new Vector2d(-36,61.7), Math.toRadians(90))
-                    .stopAndAdd(new ServoAction(claw, CLAW_CLOSED))
-                    .waitSeconds(.5)
-                    .stopAndAdd(new MotorRunToPositionAction(lift, (int) LIFT_SPECIMEN_ABOVE_SIDEWALL, LIFT_VELOCITY))
-                    .stopAndAdd(new ServoAction(arm, ARM_SCORE_SPECIMEN))
-                    // Move to high rung
-                    .splineToConstantHeading(new Vector2d(0,35), Math.toRadians(-90))
-                    // raise lift until specimen has been scored, then let go of specimen, rotate arm back and lower lift
-                    .stopAndAdd(new MotorRunToPositionAction(lift, (int) LIFT_SCORE_SPECIMEN, LIFT_VELOCITY))
-                    .stopAndAdd(new WaitUntilMotorDoneAction(lift))
-                    .stopAndAdd(new ServoAction(arm, ARM_GRAB_SPECIMEN))
-                    .stopAndAdd(new MotorRunToPositionAction(lift, LIFT_COLLAPSED_INTO_ROBOT, LIFT_VELOCITY))
-
-                    // Move to observation zone
-                    .setTangent(Math.toRadians(140))
-                    .splineToConstantHeading(new Vector2d(-36,61.7), Math.toRadians(90))
+//                    // Move around submersible to push samples to observation zone
+//                    .setTangent(Math.toRadians(0))
+//                    .lineToX(-16)
+//                    .splineToLinearHeading(new Pose2d(-35,32,Math.toRadians(-90)), Math.toRadians(-90))
+//                    .lineToY(20)
+//                    .splineToLinearHeading(new Pose2d(-45,12,Math.toRadians(-90)), Math.toRadians(90))
+//                    // Push sample 1 to observation zone
+//                    .lineToY(53)
+//                    .lineToY(12)
+//                    .splineToLinearHeading(new Pose2d(-53,10,Math.toRadians(-90)), Math.toRadians(90))
+//                    // Push sample 2 to observation zone
+//                    .lineToY(53)
+//                    .lineToY(12)
+//                    .splineToLinearHeading(new Pose2d(-61,10,Math.toRadians(-90)), Math.toRadians(90))
+//                    // Push sample 3 to observation zone
+//                    .lineToY(53)
+//
+//                    // Grab specimen 2 from sidewall
+//                    .splineToConstantHeading(new Vector2d(-36,61.7), Math.toRadians(90))
+//                    .stopAndAdd(new ServoAction(claw, CLAW_CLOSED))
+//                    .waitSeconds(.5)
+//                    .stopAndAdd(new MotorRunToPositionAction(lift, (int) LIFT_READY_TO_SCORE_SPECIMEN, LIFT_VELOCITY))
+//                    .stopAndAdd(new ServoAction(arm, ARM_SCORE_SPECIMEN))
+//                    // Move to high rung
+//                    .splineToConstantHeading(new Vector2d(0,35), Math.toRadians(-90))
+//                    // raise lift until specimen has been scored, then let go of specimen, rotate arm back and lower lift
+//                    .stopAndAdd(new MotorRunToPositionAction(lift, (int) LIFT_SCORE_SPECIMEN, LIFT_VELOCITY))
+//                    .stopAndAdd(new WaitUntilMotorDoneAction(lift))
+//                    .stopAndAdd(new ServoAction(arm, ARM_GRAB_SPECIMEN))
+//                    .stopAndAdd(new MotorRunToPositionAction(lift, LIFT_COLLAPSED_INTO_ROBOT, LIFT_VELOCITY))
+//
+//                    // Grab specimen 3 from sidewall
+//                    .setTangent(Math.toRadians(140))
+//                    .splineToConstantHeading(new Vector2d(-36,61.7), Math.toRadians(90))
+//                    .stopAndAdd(new ServoAction(claw, CLAW_CLOSED))
+//                    .waitSeconds(.5)
+//                    .stopAndAdd(new MotorRunToPositionAction(lift, (int) LIFT_READY_TO_SCORE_SPECIMEN, LIFT_VELOCITY))
+//                    .stopAndAdd(new ServoAction(arm, ARM_SCORE_SPECIMEN))
+//                    // Move to high rung
+//                    .splineToConstantHeading(new Vector2d(0,35), Math.toRadians(-90))
+//                    // raise lift until specimen has been scored, then let go of specimen, rotate arm back and lower lift
+//                    .stopAndAdd(new MotorRunToPositionAction(lift, (int) LIFT_SCORE_SPECIMEN, LIFT_VELOCITY))
+//                    .stopAndAdd(new WaitUntilMotorDoneAction(lift))
+//                    .stopAndAdd(new ServoAction(arm, ARM_GRAB_SPECIMEN))
+//                    .stopAndAdd(new MotorRunToPositionAction(lift, LIFT_COLLAPSED_INTO_ROBOT, LIFT_VELOCITY))
+//
+//                    // Grab specimen 4 from sidewall
+//                    .setTangent(Math.toRadians(140))
+//                    .splineToConstantHeading(new Vector2d(-36,61.7), Math.toRadians(90))
+//                    .stopAndAdd(new ServoAction(claw, CLAW_CLOSED))
+//                    .waitSeconds(.5)
+//                    .stopAndAdd(new MotorRunToPositionAction(lift, (int) LIFT_READY_TO_SCORE_SPECIMEN, LIFT_VELOCITY))
+//                    .stopAndAdd(new ServoAction(arm, ARM_SCORE_SPECIMEN))
+//                    // Move to high rung
+//                    .splineToConstantHeading(new Vector2d(0,35), Math.toRadians(-90))
+//                    // raise lift until specimen has been scored, then let go of specimen, rotate arm back and lower lift
+//                    .stopAndAdd(new MotorRunToPositionAction(lift, (int) LIFT_SCORE_SPECIMEN, LIFT_VELOCITY))
+//                    .stopAndAdd(new WaitUntilMotorDoneAction(lift))
+//                    .stopAndAdd(new ServoAction(arm, ARM_GRAB_SPECIMEN))
+//                    .stopAndAdd(new MotorRunToPositionAction(lift, LIFT_COLLAPSED_INTO_ROBOT, LIFT_VELOCITY))
+//
+//                    // Move to observation zone
+//                    .setTangent(Math.toRadians(140))
+//                    .splineToConstantHeading(new Vector2d(-36,61.7), Math.toRadians(90))
 
                     .build());
     }
@@ -207,6 +211,8 @@ public class RRAutoActionTesting extends LinearOpMode {
             motorEx.setTargetPosition(position);
             motorEx.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             motorEx.setVelocity(motorVelocity);
+            telemetry.addData("Motor " +motorEx + " position", position);
+            telemetry.update();
             return false;
         }
     }
