@@ -65,12 +65,13 @@ public class GeminiTeleop extends LinearOpMode {
     private static final double LIFT_TICKS_PER_MM = 28 * 12 / 120.0; // RevRobotics 28 ticks/rev motor, with 12:1 gear reduction, and belt travel of 120mm/rev
     private static final double LIFT_VELOCITY = 2100;
     private static final double LIFT_COLLAPSED_INTO_ROBOT = 0;
-    private static final double LIFT_SCORE_SPECIMEN = 100; // TODO: Example value, replace with actual value
-    private static final double LIFT_MAX_HEIGHT = 300; // TODO: Example value, replace with actual value
+    private static final double LIFT_READY_TO_SCORE_SPECIMEN = 145 * LIFT_TICKS_PER_MM;
+    private static final double LIFT_SCORE_SPECIMEN = 300 * LIFT_TICKS_PER_MM;
+    private static final double LIFT_MAX_HEIGHT = 600 * LIFT_TICKS_PER_MM;
     private static final double INTAKE_COLLECT = -1.0;
     private static final double INTAKE_OFF = 0.0;
     private static final double INTAKE_DEPOSIT = 0.5;
-    private static final double SLIDE_FULLY_EXTENDED = 300; // TODO: Example value, replace with actual value
+    private static final double SLIDE_FULLY_EXTENDED = 300 * LIFT_TICKS_PER_MM; // TODO: Example value, replace with actual value
     private static final double SLIDE_TICKS_PER_MM = 28 * 12 / 120.0; // RevRobotics 28 ticks/rev motor, with 12:1 gear reduction, and belt travel of 120mm/rev
     private static final double SLIDE_COLLAPSED_INTO_ROBOT = 0;
     private static final double SLIDE_VELOCITY = 2100;
@@ -86,7 +87,7 @@ public class GeminiTeleop extends LinearOpMode {
 
     // Enums
     private enum PresetState {
-        SCORE_SPECIMEN, GRAB_SPECIMEN, TRANSFER, COLLECT, FOLDED, INTAKE, COLLECTION_SUCCESSFUL, PRE_HANG, HANG, IDLE
+        SCORE_SPECIMEN, READY_TO_SCORE_SPECIMEN, GRAB_SPECIMEN, TRANSFER, COLLECT, FOLDED, INTAKE, COLLECTION_SUCCESSFUL, PRE_HANG, HANG, IDLE
     }
 
     // Hardware
@@ -147,8 +148,12 @@ public class GeminiTeleop extends LinearOpMode {
             } else if (gamepad1.a){
                 currentPresetState = PresetState.GRAB_SPECIMEN;
             } else if (gamepad1.b){
+                currentPresetState = PresetState.READY_TO_SCORE_SPECIMEN;
+            }
+            else if (gamepad1.y){
                 currentPresetState = PresetState.SCORE_SPECIMEN;
             }
+
             // Update the preset state based on the current state
             updatePresetState(currentPresetState);
 
@@ -329,9 +334,9 @@ public class GeminiTeleop extends LinearOpMode {
         liftTargetPosition -= gamepad2.left_stick_y * LIFT_VELOCITY * cycleTime;
         if (liftTargetPosition < LIFT_COLLAPSED_INTO_ROBOT) {
             liftTargetPosition = LIFT_COLLAPSED_INTO_ROBOT;
-        } //else if (liftTargetPosition > LIFT_MAX_HEIGHT) {
-//            liftTargetPosition = LIFT_MAX_HEIGHT;
-//        }
+        } else if (liftTargetPosition > LIFT_MAX_HEIGHT) {
+            liftTargetPosition = LIFT_MAX_HEIGHT;
+        }
 
         // Set the target position and velocity
         liftMotor.setTargetPosition((int) (liftTargetPosition));
@@ -444,9 +449,13 @@ public class GeminiTeleop extends LinearOpMode {
      */
     private void updatePresetState(PresetState state) {
         switch (state) {
+            case READY_TO_SCORE_SPECIMEN:
+                liftTargetPosition = LIFT_READY_TO_SCORE_SPECIMEN;
+                armServo.setPosition(ARM_SCORE_SPECIMEN);
+                currentPresetState = PresetState.IDLE;
+                break;
             case SCORE_SPECIMEN:
                 liftTargetPosition = LIFT_SCORE_SPECIMEN;
-                armServo.setPosition(ARM_SCORE_SPECIMEN);
                 currentPresetState = PresetState.IDLE;
                 break;
             case GRAB_SPECIMEN:
