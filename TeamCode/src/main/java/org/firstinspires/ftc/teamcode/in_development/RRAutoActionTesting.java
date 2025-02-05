@@ -26,15 +26,15 @@ public class RRAutoActionTesting extends LinearOpMode {
     private static final double LIFT_TICKS_PER_MM = 28 * 12 / 120.0; // RevRobotics 28 ticks/rev motor, with 12:1 gear reduction, and belt travel of 120mm/rev
     private static final int LIFT_VELOCITY = 2100;
     private static final int LIFT_COLLAPSED_INTO_ROBOT = 0;
-    private static final double LIFT_READY_TO_SCORE_SPECIMEN = 145 * LIFT_TICKS_PER_MM; // TODO: Example value, replace with actual value
-    private static final double LIFT_INITIAL_READY_TO_SCORE_SPECIMEN = 200 * LIFT_TICKS_PER_MM; // TODO: Example value, replace with actual value
-    private static final double LIFT_INITIAL_SCORE = 90 * LIFT_TICKS_PER_MM;
-    private static final double LIFT_SCORE_SPECIMEN = 300 * LIFT_TICKS_PER_MM; // TODO: Example value, replace with actual value
+    private static final int LIFT_READY_TO_SCORE_SPECIMEN = (int) (145 * LIFT_TICKS_PER_MM); // TODO: Example value, replace with actual value
+    private static final int LIFT_INITIAL_READY_TO_SCORE_SPECIMEN = (int) (200 * LIFT_TICKS_PER_MM); // TODO: Example value, replace with actual value
+    private static final int LIFT_INITIAL_SCORE = (int) (90 * LIFT_TICKS_PER_MM);
+    private static final int LIFT_SCORE_SPECIMEN = (int) (300 * LIFT_TICKS_PER_MM); // TODO: Example value, replace with actual value
     private static final double INTAKE_COLLECT = -1.0;
     private static final double INTAKE_OFF = 0.0;
     private static final double INTAKE_DEPOSIT = 0.5;
     private static final double SLIDE_TICKS_PER_MM = 28 * 12 / 120.0; // RevRobotics 28 ticks/rev motor, with 12:1 gear reduction, and belt travel of 120mm/rev
-    private static final double SLIDE_FULLY_EXTENDED = 300 * SLIDE_TICKS_PER_MM ; // TODO: Example value, replace with actual value
+    private static final int SLIDE_FULLY_EXTENDED = (int) (300 * SLIDE_TICKS_PER_MM); // TODO: Example value, replace with actual value
     private static final double SLIDE_COLLAPSED_INTO_ROBOT = 0;
     private static final int SLIDE_VELOCITY = 2100;
     private static final double ARM_SCORE_SPECIMEN = .33;
@@ -65,12 +65,14 @@ public class RRAutoActionTesting extends LinearOpMode {
                     // start - swing arm to score specimen position and move toward high rung
                     .stopAndAdd(new ServoAction(arm, ARM_SCORE_SPECIMEN))
                     .setTangent(Math.toRadians(-90))
-                    .lineToY(36)
+                    .lineToY(38)
                     // raise lift until specimen has been scored, then let go of specimen, rotate arm back and lower lift
-                    .stopAndAdd(new MotorRunToPositionAction(lift, (int) LIFT_INITIAL_READY_TO_SCORE_SPECIMEN, LIFT_VELOCITY))
-                    .waitSeconds(.5)
-                    .stopAndAdd(new MotorRunToPositionAction(lift, (int) LIFT_INITIAL_SCORE, LIFT_VELOCITY))
-                    .waitSeconds(1)
+                    .stopAndAdd(new MotorRunToPositionAction(lift, LIFT_INITIAL_READY_TO_SCORE_SPECIMEN, LIFT_VELOCITY))
+                    .stopAndAdd(new WaitUntilMotorDoneAction(lift, LIFT_INITIAL_READY_TO_SCORE_SPECIMEN))
+                    .lineToY(36)
+                    .stopAndAdd(new MotorRunToPositionAction(lift, LIFT_INITIAL_SCORE, LIFT_VELOCITY))
+                    .stopAndAdd(new WaitUntilMotorDoneAction(lift, LIFT_INITIAL_SCORE))
+                    .stopAndAdd(new ServoAction(claw, CLAW_OPEN))
                     .stopAndAdd(new ServoAction(arm, ARM_GRAB_SPECIMEN))
                     .waitSeconds(2)
 
@@ -219,14 +221,16 @@ public class RRAutoActionTesting extends LinearOpMode {
 
     public class WaitUntilMotorDoneAction implements Action {
         DcMotor motor;
+        int position;
 
-        public WaitUntilMotorDoneAction(DcMotor m) {
+        public WaitUntilMotorDoneAction(DcMotor m, int position) {
             this.motor = m;
+            this.position = position;
         }
 
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            return !motor.isBusy();
+            return Math.abs(motor.getCurrentPosition() - position) < 10;
         }
     }
 
