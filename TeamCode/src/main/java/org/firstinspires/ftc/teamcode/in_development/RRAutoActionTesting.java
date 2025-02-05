@@ -64,10 +64,10 @@ public class RRAutoActionTesting extends LinearOpMode {
             drive.actionBuilder(initialPose)
                     // start - swing arm to score specimen position and move toward high rung
                     .stopAndAdd(new ServoAction(arm, ARM_SCORE_SPECIMEN))
+                    .stopAndAdd(new MotorRunToPositionAction(lift, LIFT_INITIAL_READY_TO_SCORE_SPECIMEN, LIFT_VELOCITY))
                     .setTangent(Math.toRadians(-90))
                     .lineToY(38)
                     // raise lift until specimen has been scored, then let go of specimen, rotate arm back and lower lift
-                    .stopAndAdd(new MotorRunToPositionAction(lift, LIFT_INITIAL_READY_TO_SCORE_SPECIMEN, LIFT_VELOCITY))
                     .stopAndAdd(new WaitUntilMotorDoneAction(lift, LIFT_INITIAL_READY_TO_SCORE_SPECIMEN))
                     .lineToY(36)
                     .stopAndAdd(new MotorRunToPositionAction(lift, LIFT_INITIAL_SCORE, LIFT_VELOCITY))
