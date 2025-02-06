@@ -16,7 +16,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.RoadRunner.PinpointDrive;
 
-@Autonomous(name="RR Auto Action Testing")
+@Autonomous(name="Bozeman Auto", group="Competition", preselectTeleOp="BozemanAuto")
 //@Disabled
 public class BozemanAuto extends LinearOpMode {
     private PinpointDrive drive;
@@ -27,7 +27,7 @@ public class BozemanAuto extends LinearOpMode {
     private static final int LIFT_COLLAPSED_INTO_ROBOT = 0;
     private static final int LIFT_READY_TO_SCORE_SPECIMEN = (int) (145 * LIFT_TICKS_PER_MM); // TODO: Example value, replace with actual value
     private static final int LIFT_INITIAL_READY_TO_SCORE_SPECIMEN = (int) (200 * LIFT_TICKS_PER_MM); // TODO: Example value, replace with actual value
-    private static final int LIFT_INITIAL_SCORE = (int) (90 * LIFT_TICKS_PER_MM);
+    private static final int LIFT_INITIAL_SCORE = (int) (30 * LIFT_TICKS_PER_MM);
     private static final int LIFT_SCORE_SPECIMEN = (int) (300 * LIFT_TICKS_PER_MM); // TODO: Example value, replace with actual value
     private static final double INTAKE_COLLECT = -1.0;
     private static final double INTAKE_OFF = 0.0;
@@ -75,7 +75,7 @@ public class BozemanAuto extends LinearOpMode {
                     .lineToY(38)
                     // raise lift until specimen has been scored, then let go of specimen, rotate arm back and lower lift
                     .stopAndAdd(new WaitUntilMotorDoneAction(lift, LIFT_INITIAL_READY_TO_SCORE_SPECIMEN))
-                    .lineToY(35)
+                    .lineToY(37)
                     .stopAndAdd(new MotorRunToPositionAction(lift, LIFT_INITIAL_SCORE, .5))
                     .stopAndAdd(new WaitUntilMotorDoneAction(lift, LIFT_INITIAL_SCORE))
                     .stopAndAdd(new ServoAction(claw, CLAW_OPEN))
@@ -83,7 +83,11 @@ public class BozemanAuto extends LinearOpMode {
 
                     //reset
                     .waitSeconds(2)
-                    .splineToLinearHeading(initialPose, Math.toRadians(90))
+                    .stopAndAdd(new MotorRunToPositionAction(lift, LIFT_COLLAPSED_INTO_ROBOT, 1))
+                    .lineToY(58)
+                    .lineToY(61.7)
+
+
 //                    // Move around submersible to push samples to observation zone
 //                    .setTangent(Math.toRadians(0))
 //                    .lineToX(-16)

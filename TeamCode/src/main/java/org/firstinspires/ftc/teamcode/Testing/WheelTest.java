@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 //TODO: Comment out the @Disabled line (add a couple of slashes // before it) when you are ready for this program to be visible on the driver hub
 //@Disabled
-@TeleOp(name="Wheel Test Code")
+@TeleOp(name="Wheel Test", group = "Test")
 public class WheelTest extends LinearOpMode {
     public DcMotor leftFrontDrive;
     public DcMotor leftRearDrive;

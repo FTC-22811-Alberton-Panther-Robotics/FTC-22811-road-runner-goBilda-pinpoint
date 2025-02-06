@@ -5,12 +5,14 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.RoadRunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.RoadRunner.PinpointDrive;
 import org.firstinspires.ftc.teamcode.RoadRunner.SparkFunOTOSDrive;
 import org.firstinspires.ftc.teamcode.RoadRunner.TankDrive;
 
+@TeleOp(name = "Spline Test", group = "test")
 @Disabled
 public final class SplineTest extends LinearOpMode {
     @Override

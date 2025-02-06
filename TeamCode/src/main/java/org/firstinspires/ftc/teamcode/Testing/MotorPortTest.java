@@ -15,7 +15,7 @@ import com.qualcomm.robotcore.hardware.DcMotorControllerEx;
  * the dPad left and right buttons to cycle through the motor ports on both Control Hub and Driver Hub, and the left stick y axis to power the motor
  * forward (up) or reverse (down).
  */
-@TeleOp(name = "MotorPortTest", group = "Test")
+@TeleOp(name = "Motor Port Test", group = "Test")
 public class MotorPortTest extends LinearOpMode {
     private int motorPortNumber = 0; // Change this to the port number of your motor
     private int selectionIndex = 0;

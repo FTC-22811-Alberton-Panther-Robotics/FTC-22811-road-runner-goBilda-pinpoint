@@ -57,7 +57,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
  *
  * <p><b>Hardware */
 
-@TeleOp(name = "Gemini-Teleop", group = "Competition")
+@TeleOp(name = "Bozeman Teleop", group = "Competition")
 //@Disabled
 public class BozemanTeleop extends LinearOpMode {
 
