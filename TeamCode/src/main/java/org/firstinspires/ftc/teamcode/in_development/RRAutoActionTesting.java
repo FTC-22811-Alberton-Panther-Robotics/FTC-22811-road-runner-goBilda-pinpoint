@@ -4,14 +4,13 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -53,6 +52,13 @@ public class RRAutoActionTesting extends LinearOpMode {
         DcMotor leftActuator = hardwareMap.dcMotor.get("left_actuator");
         DcMotor rightActuator = hardwareMap.dcMotor.get("right_actuator");
 
+        lift.setDirection(DcMotorSimple.Direction.REVERSE);
+        lift.setTargetPosition(0);
+        lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slide.setTargetPosition(0);
+        slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        slide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //arm.setPosition(ARM_START);
         claw.setPosition(CLAW_CLOSED);
 
@@ -64,19 +70,20 @@ public class RRAutoActionTesting extends LinearOpMode {
             drive.actionBuilder(initialPose)
                     // start - swing arm to score specimen position and move toward high rung
                     .stopAndAdd(new ServoAction(arm, ARM_SCORE_SPECIMEN))
-                    .stopAndAdd(new MotorRunToPositionAction(slide, 100, 1000))
-                    .stopAndAdd(new MotorRunToPositionAction(lift,200, 1000))
+                    .stopAndAdd(new MotorRunToPositionAction(lift,LIFT_INITIAL_READY_TO_SCORE_SPECIMEN, 1))
                     .setTangent(Math.toRadians(-90))
                     .lineToY(38)
                     // raise lift until specimen has been scored, then let go of specimen, rotate arm back and lower lift
-//                    .stopAndAdd(new WaitUntilMotorDoneAction(lift, LIFT_INITIAL_READY_TO_SCORE_SPECIMEN))
-                    .lineToY(36)
-//                    .stopAndAdd(new MotorRunToPositionAction(lift, LIFT_INITIAL_SCORE, LIFT_VELOCITY))
-//                    .stopAndAdd(new WaitUntilMotorDoneAction(lift, LIFT_INITIAL_SCORE))
+                    .stopAndAdd(new WaitUntilMotorDoneAction(lift, LIFT_INITIAL_READY_TO_SCORE_SPECIMEN))
+                    .lineToY(35)
+                    .stopAndAdd(new MotorRunToPositionAction(lift, LIFT_INITIAL_SCORE, .5))
+                    .stopAndAdd(new WaitUntilMotorDoneAction(lift, LIFT_INITIAL_SCORE))
                     .stopAndAdd(new ServoAction(claw, CLAW_OPEN))
                     .stopAndAdd(new ServoAction(arm, ARM_GRAB_SPECIMEN))
-                    .waitSeconds(2)
 
+                    //reset
+                    .waitSeconds(2)
+                    .splineToLinearHeading(initialPose, Math.toRadians(90))
 //                    // Move around submersible to push samples to observation zone
 //                    .setTangent(Math.toRadians(0))
 //                    .lineToX(-16)
@@ -202,18 +209,19 @@ public class RRAutoActionTesting extends LinearOpMode {
     public class MotorRunToPositionAction implements Action {
         DcMotor motor;
         int position;
-        int motorVelocity;
+        double power;
 
-        public MotorRunToPositionAction(DcMotor m, int position, int motorVelocity) {
+        public MotorRunToPositionAction(DcMotor m, int position, double power) {
             this.motor =  m;
             this.position = position;
+            this.power = power;
         }
 
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             motor.setTargetPosition(position);
             motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            motor.setPower(.5);
+            motor.setPower(power);
             return false;
         }
     }

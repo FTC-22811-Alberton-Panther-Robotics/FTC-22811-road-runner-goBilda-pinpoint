@@ -191,8 +191,6 @@ public class GeminiTeleop extends LinearOpMode {
 
             // Update the telemetry
             updateTelemetry();
-
-
         }
     }
 
@@ -240,7 +238,7 @@ public class GeminiTeleop extends LinearOpMode {
         // Slide Motor Setup
         slideMotor.setTargetPosition(0);
         slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         // Intake Servo Initial State
         intakeServo.setPower(INTAKE_OFF);
@@ -346,6 +344,7 @@ public class GeminiTeleop extends LinearOpMode {
         // Check for current limit
         if (((DcMotorEx) liftMotor).isOverCurrent()) {
             telemetry.addLine("LIFT MOTOR EXCEEDED CURRENT LIMIT!");
+            liftTargetPosition = liftMotor.getCurrentPosition();
             controlRumble(gamepad2, true);
         } else {
             controlRumble(gamepad2, false);
@@ -370,6 +369,7 @@ public class GeminiTeleop extends LinearOpMode {
         // Check for current limit
         if (((DcMotorEx) slideMotor).isOverCurrent()) {
             telemetry.addLine("SLIDE MOTOR EXCEEDED CURRENT LIMIT!");
+            slideTargetPosition = slideMotor.getCurrentPosition();
             controlRumble(gamepad2, true);
         } else {
             controlRumble(gamepad2, false);
@@ -401,12 +401,14 @@ public class GeminiTeleop extends LinearOpMode {
         // Check for current limit
         if (((DcMotorEx) leftActuator).isOverCurrent()) {
             telemetry.addLine("LEFT ACTUATOR EXCEEDED CURRENT LIMIT!");
+            leftActuator.setTargetPosition(leftActuator.getCurrentPosition());
             controlRumble(gamepad2, true);
         } else {
             controlRumble(gamepad2, false);
         }
         if (((DcMotorEx) rightActuator).isOverCurrent()) {
             telemetry.addLine("RIGHT ACTUATOR EXCEEDED CURRENT LIMIT!");
+            rightActuator.setTargetPosition(rightActuator.getCurrentPosition());
             controlRumble(gamepad2, true);
         } else {
             controlRumble(gamepad2, false);
