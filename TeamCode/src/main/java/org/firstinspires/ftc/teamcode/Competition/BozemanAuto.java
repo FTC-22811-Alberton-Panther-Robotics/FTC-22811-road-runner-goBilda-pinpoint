@@ -87,10 +87,10 @@ public class BozemanAuto extends LinearOpMode {
 
 //                    // Move around submersible to push samples to observation zone
                     .setTangent(Math.toRadians(0))
-                    .lineToX(-16)
-                    .splineToLinearHeading(new Pose2d(-35,32,Math.toRadians(-90)), Math.toRadians(-90))
+                    .lineToX(-18)
+                    .splineToLinearHeading(new Pose2d(-18,32,Math.toRadians(-90)), Math.toRadians(-90))
                     .lineToY(20)
-                    .splineToLinearHeading(new Pose2d(-45,12,Math.toRadians(-90)), Math.toRadians(90))
+                    .splineToLinearHeading(new Pose2d(-35,12,Math.toRadians(-90)), Math.toRadians(90))
                     // Push sample 1 to observation zone
                     .lineToY(53)
                     .lineToY(12)
