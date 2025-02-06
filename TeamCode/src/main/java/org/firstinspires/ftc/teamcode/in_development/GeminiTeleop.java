@@ -207,8 +207,8 @@ public class GeminiTeleop extends LinearOpMode {
         leftRearDrive = hardwareMap.dcMotor.get("left_rear_drive");
         rightFrontDrive = hardwareMap.dcMotor.get("right_front_drive");
         rightRearDrive = hardwareMap.dcMotor.get("right_rear_drive");
-        liftMotor = hardwareMap.get(DcMotor.class, "lift");
-        slideMotor = hardwareMap.get(DcMotor.class, "slide");
+        liftMotor = hardwareMap.dcMotor.get("lift");
+        slideMotor = hardwareMap.dcMotor.get("slide");
 
         // Servos
         armServo = hardwareMap.get(Servo.class, "arm");

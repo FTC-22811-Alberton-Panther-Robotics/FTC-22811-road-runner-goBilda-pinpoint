@@ -64,14 +64,15 @@ public class RRAutoActionTesting extends LinearOpMode {
             drive.actionBuilder(initialPose)
                     // start - swing arm to score specimen position and move toward high rung
                     .stopAndAdd(new ServoAction(arm, ARM_SCORE_SPECIMEN))
-                    .stopAndAdd(new MotorRunToPositionAction(lift, LIFT_INITIAL_READY_TO_SCORE_SPECIMEN, LIFT_VELOCITY))
+                    .stopAndAdd(new MotorRunToPositionAction(slide, 100, 1000))
+                    .stopAndAdd(new MotorRunToPositionAction(lift,200, 1000))
                     .setTangent(Math.toRadians(-90))
                     .lineToY(38)
                     // raise lift until specimen has been scored, then let go of specimen, rotate arm back and lower lift
-                    .stopAndAdd(new WaitUntilMotorDoneAction(lift, LIFT_INITIAL_READY_TO_SCORE_SPECIMEN))
+//                    .stopAndAdd(new WaitUntilMotorDoneAction(lift, LIFT_INITIAL_READY_TO_SCORE_SPECIMEN))
                     .lineToY(36)
-                    .stopAndAdd(new MotorRunToPositionAction(lift, LIFT_INITIAL_SCORE, LIFT_VELOCITY))
-                    .stopAndAdd(new WaitUntilMotorDoneAction(lift, LIFT_INITIAL_SCORE))
+//                    .stopAndAdd(new MotorRunToPositionAction(lift, LIFT_INITIAL_SCORE, LIFT_VELOCITY))
+//                    .stopAndAdd(new WaitUntilMotorDoneAction(lift, LIFT_INITIAL_SCORE))
                     .stopAndAdd(new ServoAction(claw, CLAW_OPEN))
                     .stopAndAdd(new ServoAction(arm, ARM_GRAB_SPECIMEN))
                     .waitSeconds(2)
@@ -199,22 +200,20 @@ public class RRAutoActionTesting extends LinearOpMode {
     }
 
     public class MotorRunToPositionAction implements Action {
-        DcMotorEx motorEx;
+        DcMotor motor;
         int position;
         int motorVelocity;
 
         public MotorRunToPositionAction(DcMotor m, int position, int motorVelocity) {
-            this.motorEx = (DcMotorEx) m;
+            this.motor =  m;
             this.position = position;
         }
 
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            motorEx.setTargetPosition(position);
-            motorEx.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            motorEx.setVelocity(motorVelocity);
-            telemetry.addData("Motor " +motorEx + " position", position);
-            telemetry.update();
+            motor.setTargetPosition(position);
+            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motor.setPower(.5);
             return false;
         }
     }
@@ -230,7 +229,7 @@ public class RRAutoActionTesting extends LinearOpMode {
 
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-            return Math.abs(motor.getCurrentPosition() - position) < 10;
+            return Math.abs(motor.getCurrentPosition() - position) > 10;
         }
     }
 
