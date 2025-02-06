@@ -63,47 +63,50 @@ public class BozemanAuto extends LinearOpMode {
         claw.setPosition(CLAW_CLOSED);
 
         waitForStart();
-        initialPose = new Pose2d(-8, 61.7, Math.toRadians(-90));
+        initialPose = new Pose2d(8, 61.7, Math.toRadians(-90));
         drive = new PinpointDrive(hardwareMap, initialPose);
 
         Actions.runBlocking(
             drive.actionBuilder(initialPose)
                     // start - swing arm to score specimen position and move toward high rung
+                    .lineToY(57)
                     .stopAndAdd(new ServoAction(arm, ARM_SCORE_SPECIMEN))
                     .stopAndAdd(new MotorRunToPositionAction(lift,LIFT_INITIAL_READY_TO_SCORE_SPECIMEN, 1))
                     .setTangent(Math.toRadians(-90))
                     .lineToY(38)
                     // raise lift until specimen has been scored, then let go of specimen, rotate arm back and lower lift
                     .stopAndAdd(new WaitUntilMotorDoneAction(lift, LIFT_INITIAL_READY_TO_SCORE_SPECIMEN))
-                    .lineToY(37)
-                    .stopAndAdd(new MotorRunToPositionAction(lift, LIFT_INITIAL_SCORE, .5))
-                    .stopAndAdd(new WaitUntilMotorDoneAction(lift, LIFT_INITIAL_SCORE))
+                    .lineToY(38)
+                    .stopAndAdd(new MotorRunToPositionAction(lift, LIFT_COLLAPSED_INTO_ROBOT, .5))
+                    .stopAndAdd(new WaitUntilMotorDoneAction(lift, LIFT_COLLAPSED_INTO_ROBOT))
                     .stopAndAdd(new ServoAction(claw, CLAW_OPEN))
                     .stopAndAdd(new ServoAction(arm, ARM_GRAB_SPECIMEN))
 
-                    //reset
-                    .waitSeconds(2)
-                    .stopAndAdd(new MotorRunToPositionAction(lift, LIFT_COLLAPSED_INTO_ROBOT, 1))
-                    .lineToY(58)
-                    .lineToY(61.7)
+
 
 
 //                    // Move around submersible to push samples to observation zone
-//                    .setTangent(Math.toRadians(0))
-//                    .lineToX(-16)
-//                    .splineToLinearHeading(new Pose2d(-35,32,Math.toRadians(-90)), Math.toRadians(-90))
-//                    .lineToY(20)
-//                    .splineToLinearHeading(new Pose2d(-45,12,Math.toRadians(-90)), Math.toRadians(90))
-//                    // Push sample 1 to observation zone
-//                    .lineToY(53)
-//                    .lineToY(12)
-//                    .splineToLinearHeading(new Pose2d(-53,10,Math.toRadians(-90)), Math.toRadians(90))
-//                    // Push sample 2 to observation zone
-//                    .lineToY(53)
-//                    .lineToY(12)
-//                    .splineToLinearHeading(new Pose2d(-61,10,Math.toRadians(-90)), Math.toRadians(90))
-//                    // Push sample 3 to observation zone
-//                    .lineToY(53)
+                    .setTangent(Math.toRadians(0))
+                    .lineToX(-16)
+                    .splineToLinearHeading(new Pose2d(-35,32,Math.toRadians(-90)), Math.toRadians(-90))
+                    .lineToY(20)
+                    .splineToLinearHeading(new Pose2d(-45,12,Math.toRadians(-90)), Math.toRadians(90))
+                    // Push sample 1 to observation zone
+                    .lineToY(53)
+                    .lineToY(12)
+                    .splineToLinearHeading(new Pose2d(-53,10,Math.toRadians(-90)), Math.toRadians(90))
+                    // Push sample 2 to observation zone
+                    .lineToY(53)
+                    .lineToY(12)
+                    .splineToLinearHeading(new Pose2d(-61,10,Math.toRadians(-90)), Math.toRadians(90))
+                    // Push sample 3 to observation zone
+                   .lineToY(53)
+
+                    //reset
+                   .waitSeconds(2)
+                    .stopAndAdd(new MotorRunToPositionAction(lift, LIFT_COLLAPSED_INTO_ROBOT, 1))
+                    .lineToY(58)
+                    .lineToY(61.7)
 //
 //                    // Grab specimen 2 from sidewall
 //                    .splineToConstantHeading(new Vector2d(-36,61.7), Math.toRadians(90))
