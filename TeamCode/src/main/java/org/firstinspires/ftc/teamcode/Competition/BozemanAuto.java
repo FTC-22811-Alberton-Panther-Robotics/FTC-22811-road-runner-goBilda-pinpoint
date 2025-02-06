@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.in_development;
+package org.firstinspires.ftc.teamcode.Competition;
 
 import androidx.annotation.NonNull;
 
@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.RoadRunner.PinpointDrive;
 
 @Autonomous(name="RR Auto Action Testing")
 //@Disabled
-public class RRAutoActionTesting extends LinearOpMode {
+public class BozemanAuto extends LinearOpMode {
     private PinpointDrive drive;
     private Pose2d initialPose;
     // Constants

@@ -19,7 +19,7 @@
  *   SOFTWARE.
  */
 
-package org.firstinspires.ftc.teamcode.in_development;
+package org.firstinspires.ftc.teamcode.Competition;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -59,7 +59,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 @TeleOp(name = "Gemini-Teleop", group = "Competition")
 //@Disabled
-public class GeminiTeleop extends LinearOpMode {
+public class BozemanTeleop extends LinearOpMode {
 
     // Constants
     private static final double LIFT_TICKS_PER_MM = 28 * 12 / 120.0; // RevRobotics 28 ticks/rev motor, with 12:1 gear reduction, and belt travel of 120mm/rev

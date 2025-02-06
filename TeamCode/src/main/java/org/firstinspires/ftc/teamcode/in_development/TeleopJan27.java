@@ -59,7 +59,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 @TeleOp(name="Bozeman-Teleop", group="Competition")
 @Disabled
-public class BozemanTeleop extends LinearOpMode {
+public class TeleopJan27 extends LinearOpMode {
 
     /* Declare OpMode members. */
     private DcMotor  leftFrontDrive   = null; //the left drivetrain motor
