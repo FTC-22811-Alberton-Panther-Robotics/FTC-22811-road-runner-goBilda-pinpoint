@@ -71,6 +71,7 @@ public class BozemanTeleop extends LinearOpMode {
     private static final double INTAKE_OFF = 0.0;
     private static final double INTAKE_DEPOSIT = 0.5;
     private static final double SLIDE_TICKS_PER_MM = 28 * 12 / 120.0; // RevRobotics 28 ticks/rev motor, with 12:1 gear reduction, and belt travel of 120mm/rev
+    private static final double SLIDE_HALF_OUT = 150 * SLIDE_TICKS_PER_MM;
     private static final double SLIDE_FULLY_EXTENDED = 300 * SLIDE_TICKS_PER_MM; // TODO: Example value, replace with actual value
     private static final double SLIDE_COLLAPSED_INTO_ROBOT = 0;
     private static final double SLIDE_VELOCITY = 2100;
@@ -79,9 +80,9 @@ public class BozemanTeleop extends LinearOpMode {
     private static final double ARM_TRANSFER = 1; // TODO: Example value, replace with actual value
     private static final double CLAW_OPEN = 0;
     private static final double CLAW_CLOSED = 1;
-    private static final double WRIST_DOWN = 0; // TODO: Example value, replace with actual value
     private static final double WRIST_UP = .5; // TODO: Example value, replace with actual value
-    private static final double WRIST_FOLDED = 1; // TODO: Example value, replace with actual value
+    private static final double WRIST_DOWN = .9; // TODO: Example value, replace with actual value
+    private static final double WRIST_FOLDED =0; // TODO: Example value, replace with actual value
     private static final double ACTUATORS_COLLAPSED_INTO_ROBOT = 0;
     private static final double ACTUATORS_HANG = 200; // TODO: Example value, replace with actual value
     private static final double ACTUATORS_FULLY_EXTENDED = 300; // TODO: Example value, replace with actual value
@@ -89,7 +90,7 @@ public class BozemanTeleop extends LinearOpMode {
 
     // Enums
     private enum PresetState {
-        SCORE_SPECIMEN, READY_TO_SCORE_SPECIMEN, GRAB_SPECIMEN,CLEAR_BARRIER, TRANSFER, COLLECT, FOLD_IN_LOWER, SLIDE_OUT_MANUAL,COLLECT_SLIDE_HALF_OUT,COLLECT_SLIDE_FULL_OUT, INTAKE,SLIDE_IN_MANUAL, COLLECTION_SUCCESSFUL, PRE_HANG, HANG, IDLE
+        SCORE_SPECIMEN, READY_TO_SCORE_SPECIMEN, GRAB_SPECIMEN,CLEAR_BARRIER, TRANSFER, COLLECT, FOLD_IN_LOWER, SLIDE_OUT_MANUAL,SLIDE_HALF_OUT, SLIDE_FULL_OUT, INTAKE,SLIDE_IN_MANUAL, COLLECTION_SUCCESSFUL, PRE_HANG, HANG, IDLE
     }
 
     // Hardware
@@ -150,11 +151,13 @@ public class BozemanTeleop extends LinearOpMode {
             } else if (gamepad2.y) {
                 currentPresetState = PresetState.FOLD_IN_LOWER;
             } else if (gamepad2.x) {
-                currentPresetState = PresetState.COLLECT_SLIDE_HALF_OUT;
+                currentPresetState = PresetState.SLIDE_HALF_OUT;
+                sequenceTimer.reset();
             } else if (gamepad2.b){
-                currentPresetState = PresetState.COLLECT_SLIDE_FULL_OUT;
+                currentPresetState = PresetState.SLIDE_FULL_OUT;
+                sequenceTimer.reset();
             } else if (gamepad2.a) {
-                currentPresetState = PresetState.CLEAR_BARRIER;
+                currentPresetState = PresetState.COLLECT;
             }
 
             // Update the preset state based on the current state
@@ -171,11 +174,14 @@ public class BozemanTeleop extends LinearOpMode {
                 resetIMU();
             }
 
-            // Control the intake based on gamepad input and presets
-            controlIntake();
 
-            // Control the claw based on gamepad input and presets
-            controlClaw();
+
+            // Control the  upper claw based on gamepad input and presets
+            controlUpperClaw();
+
+            // Control the lower claw based on gamepad input and presets
+            controlLowerClaw();
+
 
             // Control the lift based on gamepad input and presets
             controlLift();
@@ -306,29 +312,32 @@ public class BozemanTeleop extends LinearOpMode {
         rightRearDrive.setPower(backRightPower);
     }
 
-    /**
-     * Controls the intake servo based on gamepad button presses.
-     */
-    private void controlIntake() {
-        if (gamepad2.left_bumper) {
-            lowerClawServo.setPosition(INTAKE_COLLECT);
-        } else if (gamepad2.right_bumper) {
-            lowerClawServo.setPosition(INTAKE_DEPOSIT);
-        } else {
-            lowerClawServo.setPosition(INTAKE_OFF);
-        }
-    }
+
 
     /**
-     * Controls the claw servo based on gamepad button presses.
+     * Controls the upper claw servo based on gamepad button presses.
      */
-    private void controlClaw() {
+    private void controlUpperClaw() {
         if (gamepad1.left_bumper) {
             upperClawServo.setPosition(CLAW_OPEN);
         } else if (gamepad1.right_bumper) {
             upperClawServo.setPosition(CLAW_CLOSED);
         }
     }
+
+
+    /**
+     * Controls the lower claw servo based on gamepad button presses.
+     */
+    private void controlLowerClaw() {
+        if (gamepad2.left_bumper) {
+            lowerClawServo.setPosition(CLAW_OPEN);
+        } else if (gamepad2.right_bumper) {
+            lowerClawServo.setPosition(CLAW_CLOSED);
+        }
+    }
+
+
 
     /**
      * Controls the lift motor's movement and position.
@@ -337,6 +346,8 @@ public class BozemanTeleop extends LinearOpMode {
         // Manual Lift Control
         if (gamepad1.dpad_up){
             liftTargetPosition += LIFT_VELOCITY * cycleTime;
+        } else if (gamepad1.dpad_down){
+            liftTargetPosition -= LIFT_VELOCITY * cycleTime;
         }
         if (liftTargetPosition < LIFT_COLLAPSED_INTO_ROBOT) {
             liftTargetPosition = LIFT_COLLAPSED_INTO_ROBOT;
@@ -364,7 +375,7 @@ public class BozemanTeleop extends LinearOpMode {
      */
     private void controlSlide() {
         // Manual Slide Control
-        slideTargetPosition += (gamepad1.right_trigger - gamepad1.left_trigger) * SLIDE_VELOCITY * cycleTime;
+        slideTargetPosition += (gamepad2.right_trigger - gamepad2.left_trigger) * SLIDE_VELOCITY * cycleTime;
         if (slideTargetPosition < SLIDE_COLLAPSED_INTO_ROBOT) {
             slideTargetPosition = SLIDE_COLLAPSED_INTO_ROBOT;
         } else if (slideTargetPosition > SLIDE_FULLY_EXTENDED) {
@@ -486,13 +497,15 @@ public class BozemanTeleop extends LinearOpMode {
                 wristServo.setPosition(WRIST_UP);
                 currentPresetState = PresetState.IDLE;
                 break;
-            case COLLECT_SLIDE_FULL_OUT:
+            case SLIDE_FULL_OUT:
+                wristServo.setPosition(WRIST_UP);
                 slideTargetPosition = SLIDE_FULLY_EXTENDED;
-                wristServo.setPosition(WRIST_DOWN);
+                currentPresetState = PresetState.IDLE;
                 break;
-            case COLLECT_SLIDE_HALF_OUT:
-                slideTargetPosition = 0; // TODO: find the real postiton
-                wristServo.setPosition(WRIST_DOWN);
+            case SLIDE_HALF_OUT:
+                wristServo.setPosition(WRIST_UP);
+                slideTargetPosition = SLIDE_HALF_OUT;
+                currentPresetState = PresetState.IDLE;
                 break;
             case FOLD_IN_LOWER:
                 slideTargetPosition = SLIDE_COLLAPSED_INTO_ROBOT;
@@ -500,8 +513,6 @@ public class BozemanTeleop extends LinearOpMode {
                 break;
             case COLLECT:
                 wristServo.setPosition(WRIST_DOWN);
-                slideTargetPosition = SLIDE_FULLY_EXTENDED;
-                lowerClawServo.setPosition(INTAKE_COLLECT);
                 currentPresetState = PresetState.IDLE;
                 break;
             case COLLECTION_SUCCESSFUL: // TODO: Consider combining with transfer
