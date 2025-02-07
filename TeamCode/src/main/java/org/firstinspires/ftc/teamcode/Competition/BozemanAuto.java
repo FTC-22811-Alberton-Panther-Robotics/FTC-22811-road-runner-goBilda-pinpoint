@@ -26,10 +26,10 @@ public class BozemanAuto extends LinearOpMode {
     private static final double LIFT_TICKS_PER_MM = 28 * 12 / 120.0; // RevRobotics 28 ticks/rev motor, with 12:1 gear reduction, and belt travel of 120mm/rev
     private static final int LIFT_VELOCITY = 2100;
     private static final int LIFT_COLLAPSED_INTO_ROBOT = 0;
-    private static final int LIFT_READY_TO_SCORE_SPECIMEN = (int) (170 * LIFT_TICKS_PER_MM); // TODO: Example value, replace with actual value
+    private static final int LIFT_READY_TO_SCORE_SPECIMEN = (int) (140 * LIFT_TICKS_PER_MM); // TODO: Example value, replace with actual value
     private static final int LIFT_INITIAL_READY_TO_SCORE_SPECIMEN = (int) (190 * LIFT_TICKS_PER_MM); // TODO: Example value, replace with actual value
     private static final int LIFT_INITIAL_SCORE = (int) (30 * LIFT_TICKS_PER_MM);
-    private static final int LIFT_SCORE_SPECIMEN = (int) (400* LIFT_TICKS_PER_MM); // TODO: Example value, replace with actual value
+    private static final int LIFT_SCORE_SPECIMEN = (int) (380* LIFT_TICKS_PER_MM); // TODO: Example value, replace with actual value
     private static final double INTAKE_COLLECT = -1.0;
     private static final double INTAKE_OFF = 0.0;
     private static final double INTAKE_DEPOSIT = 0.5;
@@ -66,6 +66,12 @@ public class BozemanAuto extends LinearOpMode {
         waitForStart();
         initialPose = new Pose2d(8, 61.7, Math.toRadians(-90));
         drive = new PinpointDrive(hardwareMap, initialPose);
+
+
+
+
+
+        // todo: fix the 3rd speciman hook and make it go up more :(+
 
         Actions.runBlocking(
             drive.actionBuilder(initialPose)
@@ -112,7 +118,7 @@ public class BozemanAuto extends LinearOpMode {
                     .setTangent(Math.toRadians(90))
                     .lineToY(53)
                     .lineToY(12)
-                    .splineToLinearHeading(new Pose2d(-33,10,Math.toRadians(-90)), Math.toRadians(90))
+                    .splineToLinearHeading(new Pose2d(-35,10,Math.toRadians(-90)), Math.toRadians(90))
                     // Push sample 2 to observation zone
                     .setTangent(Math.toRadians(90))
                     .lineToY(53)
