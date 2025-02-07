@@ -80,6 +80,9 @@ public class BozemanTeleop extends LinearOpMode {
     private static final double ARM_TRANSFER = 1; // TODO: Example value, replace with actual value
     private static final double CLAW_OPEN = 0;
     private static final double CLAW_CLOSED = 1;
+    private static final double WRIST_DOWN = 0; // TODO: Example value, replace with actual value
+    private static final double WRIST_UP = .5; // TODO: Example value, replace with actual value
+    private static final double WRIST_FOLDED = 1; // TODO: Example value, replace with actual value
     private static final double ACTUATORS_COLLAPSED_INTO_ROBOT = 0;
     private static final double ACTUATORS_HANG = 200; // TODO: Example value, replace with actual value
     private static final double ACTUATORS_FULLY_EXTENDED = 300; // TODO: Example value, replace with actual value
@@ -100,8 +103,9 @@ public class BozemanTeleop extends LinearOpMode {
     private DcMotor liftMotor = null;
     private DcMotor slideMotor = null;
     private Servo   armServo = null;
-    private Servo   clawServo = null;
-    private CRServo intakeServo = null;
+    private Servo   upperClawServo = null;
+    private Servo   lowerClawServo = null;
+    private Servo   wristServo = null;
     private IMU     imu = null;
 
     // State
@@ -210,8 +214,9 @@ public class BozemanTeleop extends LinearOpMode {
 
         // Servos
         armServo = hardwareMap.get(Servo.class, "arm");
-        clawServo = hardwareMap.get(Servo.class, "claw");
-        intakeServo = hardwareMap.get(CRServo.class, "intake");
+        upperClawServo = hardwareMap.get(Servo.class, "upperClaw");
+        lowerClawServo = hardwareMap.get(Servo.class, "lowerClaw");
+        wristServo = hardwareMap.get(Servo.class, "wrist");
 
         // Motor Directions
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -240,8 +245,8 @@ public class BozemanTeleop extends LinearOpMode {
         slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        // Intake Servo Initial State
-        intakeServo.setPower(INTAKE_OFF);
+        // Lower Claw Servo Initial State
+        wristServo.setPosition(WRIST_FOLDED);
 
         // IMU
         imu = hardwareMap.get(IMU.class, "imu");
@@ -305,11 +310,11 @@ public class BozemanTeleop extends LinearOpMode {
      */
     private void controlIntake() {
         if (gamepad2.left_bumper) {
-            intakeServo.setPower(INTAKE_COLLECT);
+            lowerClawServo.setPosition(INTAKE_COLLECT);
         } else if (gamepad2.right_bumper) {
-            intakeServo.setPower(INTAKE_DEPOSIT);
+            lowerClawServo.setPosition(INTAKE_DEPOSIT);
         } else {
-            intakeServo.setPower(INTAKE_OFF);
+            lowerClawServo.setPosition(INTAKE_OFF);
         }
     }
 
@@ -318,9 +323,9 @@ public class BozemanTeleop extends LinearOpMode {
      */
     private void controlClaw() {
         if (gamepad1.left_bumper) {
-            clawServo.setPosition(CLAW_OPEN);
+            upperClawServo.setPosition(CLAW_OPEN);
         } else if (gamepad1.right_bumper) {
-            clawServo.setPosition(CLAW_CLOSED);
+            upperClawServo.setPosition(CLAW_CLOSED);
         }
     }
 
@@ -468,17 +473,23 @@ public class BozemanTeleop extends LinearOpMode {
             case TRANSFER:
                 liftTargetPosition = LIFT_COLLAPSED_INTO_ROBOT;
                 armServo.setPosition(ARM_TRANSFER);
-                clawServo.setPosition(CLAW_OPEN);
+                upperClawServo.setPosition(CLAW_OPEN);
+                currentPresetState = PresetState.IDLE;
+                break;
+            case CLEAR_BARRIER:
+                wristServo.setPosition(WRIST_UP);
+                armServo.setPosition(ARM_GRAB_SPECIMEN);
                 currentPresetState = PresetState.IDLE;
                 break;
             case COLLECT:
+                wristServo.setPosition(WRIST_DOWN);
                 slideTargetPosition = SLIDE_FULLY_EXTENDED;
-                intakeServo.setPower(INTAKE_COLLECT);
+                lowerClawServo.setPosition(INTAKE_COLLECT);
                 currentPresetState = PresetState.IDLE;
                 break;
             case COLLECTION_SUCCESSFUL: // TODO: Consider combining with transfer
                 slideTargetPosition = SLIDE_COLLAPSED_INTO_ROBOT;
-                intakeServo.setPower(INTAKE_OFF);
+                lowerClawServo.setPosition(INTAKE_OFF);
                 currentPresetState = PresetState.IDLE;
                 break;
             case PRE_HANG:
