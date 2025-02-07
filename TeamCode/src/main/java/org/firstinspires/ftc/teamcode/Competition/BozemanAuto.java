@@ -80,7 +80,7 @@ public class BozemanAuto extends LinearOpMode {
                     .lineToY(37)
                     .stopAndAdd(new MotorRunToPositionAction(lift, LIFT_COLLAPSED_INTO_ROBOT, .5))
                     .stopAndAdd(new ServoAction(arm, ARM_SCORE_SPECIMEN-.05))
-                    .stopAndAdd(new WaitUntilMotorDoneAction(lift, LIFT_COLLAPSED_INTO_ROBOT))
+                    .waitSeconds(.5)
                     .stopAndAdd(new ServoAction(upperClaw, CLAW_OPEN))
                     .stopAndAdd(new ServoAction(arm, ARM_GRAB_SPECIMEN))
 
@@ -256,3 +256,6 @@ public class BozemanAuto extends LinearOpMode {
     }
 
 }
+
+
+///Evan was here :)
