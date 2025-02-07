@@ -210,8 +210,8 @@ public class BozemanTeleop extends LinearOpMode {
      */
     private void initializeHardware() {
         // Motors
-        rightActuator = hardwareMap.dcMotor.get("left_actuator");
-        leftActuator = hardwareMap.dcMotor.get("right_actuator");
+        rightActuator = hardwareMap.dcMotor.get("right_actuator");
+        leftActuator = hardwareMap.dcMotor.get("left_actuator");
         leftFrontDrive = hardwareMap.dcMotor.get("left_front_drive");
         leftRearDrive = hardwareMap.dcMotor.get("left_rear_drive");
         rightFrontDrive = hardwareMap.dcMotor.get("right_front_drive");
