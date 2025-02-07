@@ -26,10 +26,10 @@ public class BozemanAuto extends LinearOpMode {
     private static final double LIFT_TICKS_PER_MM = 28 * 12 / 120.0; // RevRobotics 28 ticks/rev motor, with 12:1 gear reduction, and belt travel of 120mm/rev
     private static final int LIFT_VELOCITY = 2100;
     private static final int LIFT_COLLAPSED_INTO_ROBOT = 0;
-    private static final int LIFT_READY_TO_SCORE_SPECIMEN = (int) (145 * LIFT_TICKS_PER_MM); // TODO: Example value, replace with actual value
-    private static final int LIFT_INITIAL_READY_TO_SCORE_SPECIMEN = (int) (180 * LIFT_TICKS_PER_MM); // TODO: Example value, replace with actual value
+    private static final int LIFT_READY_TO_SCORE_SPECIMEN = (int) (170 * LIFT_TICKS_PER_MM); // TODO: Example value, replace with actual value
+    private static final int LIFT_INITIAL_READY_TO_SCORE_SPECIMEN = (int) (190 * LIFT_TICKS_PER_MM); // TODO: Example value, replace with actual value
     private static final int LIFT_INITIAL_SCORE = (int) (30 * LIFT_TICKS_PER_MM);
-    private static final int LIFT_SCORE_SPECIMEN = (int) (300 * LIFT_TICKS_PER_MM); // TODO: Example value, replace with actual value
+    private static final int LIFT_SCORE_SPECIMEN = (int) (400* LIFT_TICKS_PER_MM); // TODO: Example value, replace with actual value
     private static final double INTAKE_COLLECT = -1.0;
     private static final double INTAKE_OFF = 0.0;
     private static final double INTAKE_DEPOSIT = 0.5;
@@ -93,7 +93,7 @@ public class BozemanAuto extends LinearOpMode {
                     .stopAndAdd(new ServoAction(arm, ARM_SCORE_SPECIMEN))
 
                     // Move to high rung
-                    .splineToConstantHeading(new Vector2d(8,33), Math.toRadians(-90))
+                    .splineToConstantHeading(new Vector2d(11,39), Math.toRadians(-90))
                     // raise lift until specimen has been scored, then let go of specimen, rotate arm back and lower lift
                     .stopAndAdd(new MotorRunToPositionAction(lift, (int) LIFT_SCORE_SPECIMEN, LIFT_VELOCITY))
                     .stopAndAdd(new WaitUntilMotorDoneAction(lift, LIFT_SCORE_SPECIMEN))
@@ -112,18 +112,34 @@ public class BozemanAuto extends LinearOpMode {
                     .setTangent(Math.toRadians(90))
                     .lineToY(53)
                     .lineToY(12)
-                    .splineToLinearHeading(new Pose2d(-31,10,Math.toRadians(-90)), Math.toRadians(90))
+                    .splineToLinearHeading(new Pose2d(-33,10,Math.toRadians(-90)), Math.toRadians(90))
                     // Push sample 2 to observation zone
                     .setTangent(Math.toRadians(90))
                     .lineToY(53)
-                    .lineToY(12)
-                    .splineToLinearHeading(new Pose2d(-39,10,Math.toRadians(-90)), Math.toRadians(90))
-                    // Push sample 3 to observation zone
-                    .setTangent(Math.toRadians(90))
-                    .lineToY(53)
+
+                    // Grab specimen 3 from sidewall
+                    .splineToConstantHeading(new Vector2d(-21,60.5), Math.toRadians(90))
+                    .lineToY(61.7)
+                    .stopAndAdd(new ServoAction(upperClaw, CLAW_CLOSED))
+                    .waitSeconds(.5)
+                    .stopAndAdd(new MotorRunToPositionAction(lift, (int) LIFT_READY_TO_SCORE_SPECIMEN, LIFT_VELOCITY))
+                    .stopAndAdd(new ServoAction(arm, ARM_SCORE_SPECIMEN))
+
+                    // Move to high rung
+                    .splineToConstantHeading(new Vector2d(14,38.5), Math.toRadians(-90))
+                    // raise lift until specimen has been scored, then let go of specimen, rotate arm back and lower lift
+                    .waitSeconds(.5)
+                    .stopAndAdd(new MotorRunToPositionAction(lift, (int) LIFT_SCORE_SPECIMEN, LIFT_VELOCITY))
+                    .waitSeconds(.5)
+                    .stopAndAdd(new ServoAction(upperClaw, CLAW_OPEN))
+                    .stopAndAdd(new ServoAction(arm, ARM_GRAB_SPECIMEN))
+                    .stopAndAdd(new MotorRunToPositionAction(lift, LIFT_COLLAPSED_INTO_ROBOT, LIFT_VELOCITY))
+
+                    //park
+                    .splineToConstantHeading(new Vector2d(-26 ,60.5), Math.toRadians(90))
 
                     //reset
-                   .waitSeconds(2)
+                    .waitSeconds(2)
                     .stopAndAdd(new MotorRunToPositionAction(lift, LIFT_COLLAPSED_INTO_ROBOT, 1))
                     .lineToY(58)
                     .lineToY(61.7)
