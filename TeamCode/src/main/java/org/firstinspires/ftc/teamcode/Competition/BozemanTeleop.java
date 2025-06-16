@@ -22,6 +22,7 @@
 package org.firstinspires.ftc.teamcode.Competition;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -57,7 +58,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
  * <p><b>Hardware */
 
 @TeleOp(name = "Bozeman Teleop", group = "Competition")
-//@Disabled
+@Disabled
 public class BozemanTeleop extends LinearOpMode {
 
     // Constants

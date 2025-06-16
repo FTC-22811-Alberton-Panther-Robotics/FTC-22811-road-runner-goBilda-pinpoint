@@ -53,7 +53,7 @@ import org.firstinspires.ftc.teamcode.RoadRunner.PinpointDrive;
  */
 
 @Autonomous(name="ConfigurableAutonomousRR", group="Competition")
-//@Disabled
+@Disabled
 public class ConfigurableAutonomousRR extends LinearOpMode {
 
     // Declare OpMode members.
